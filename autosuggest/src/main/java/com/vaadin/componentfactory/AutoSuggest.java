@@ -42,7 +42,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Server-side component for the <code>vcf-auto-suggest</code> element.
+ * Server-side component for the <code>vcf-autosuggest</code> element.
  * <p>
  * Note: isOpened,setOpened and setValue are not supported. The current
  * implementation of the polymer-side component does not allow it.
@@ -50,18 +50,18 @@ import java.util.stream.Collectors;
  * @author Vaadin Ltd
  */
 
-@Tag("vcf-auto-suggest")
-@NpmPackage(value = "@vaadin-component-factory/vcf-auto-suggest", version = "1.0.0")
-@JsModule("@vaadin-component-factory/vcf-auto-suggest/src/vcf-auto-suggest.js")
-@CssImport(value = "@vaadin-component-factory/vcf-auto-suggest/styles/vcf-auto-suggest.css")
-public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTemplateModel>
-        implements HasTheme, HasSize, HasValue<AutoSuggest.AutoSuggestValueAppliedEvent, String>, Focusable<AutoSuggest>, HasValidation {
+@Tag("vcf-autosuggest")
+@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.0")
+@JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
+@CssImport(value = "@vaadin-component-factory/vcf-autosuggest/styles/vcf-autosuggest.css")
+public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTemplateModel>
+        implements HasTheme, HasSize, HasValue<Autosuggest.AutosuggestValueAppliedEvent, String>, Focusable<Autosuggest>, HasValidation {
 
     /**
-     * This model binds properties {@link AutoSuggest} and
-     * vcf-auto-suggest.html
+     * This model binds properties {@link Autosuggest} and
+     * vcf-autosuggest.html
      */
-    public interface AutoSuggestTemplateModel extends TemplateModel {
+    public interface AutosuggestTemplateModel extends TemplateModel {
         @AllArgsConstructor
         class FOption {
             @Getter
@@ -105,7 +105,7 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
         void setCustomItemTemplate(String tpl);
     }
 
-    class Option extends AutoSuggestTemplateModel.FOption {
+    class Option extends AutosuggestTemplateModel.FOption {
         @Getter
         @Setter
         T item;
@@ -150,7 +150,7 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
     private LabelGenerator<T> labelGenerator = null;
     private SearchStringGenerator<T> searchStringGenerator = null;
 
-    @Id(value = "autoSuggestOverlay")
+    @Id(value = "autosuggestOverlay")
     private Element overlay;
 
     @Id(value = "dropdownEndSlot")
@@ -168,12 +168,12 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
      * @param limit
      *            maximum number of displayed options
      */
-    public AutoSuggest(int limit) { //TODO: TEST THE LIMIT PROPERTY
+    public Autosuggest(int limit) { //TODO: TEST THE LIMIT PROPERTY
         this();
         setLimit(limit);
     }
 
-    public AutoSuggest() {
+    public Autosuggest() {
         this(false);
     }
 
@@ -181,7 +181,7 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
      * Default constructor.
      */
 
-    public AutoSuggest(boolean placeClearButtonFirst) {
+    public Autosuggest(boolean placeClearButtonFirst) {
         textField.setSizeFull();
         textField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 
@@ -410,16 +410,16 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
     }
 
     /**
-     * Adds a listener for {@code AutoSuggestValueAppliedEvent} events fired by
+     * Adds a listener for {@code AutosuggestValueAppliedEvent} events fired by
      * the webcomponent.
      *
      * @param listener
      *            the listener
      * @return a {@link Registration} for removing the event listener
      */
-    public Registration addAutoSuggestValueAppliedListener(
-            ComponentEventListener<AutoSuggestValueAppliedEvent> listener) {
-        return addListener(AutoSuggestValueAppliedEvent.class, listener);
+    public Registration addAutosuggestValueAppliedListener(
+            ComponentEventListener<AutosuggestValueAppliedEvent> listener) {
+        return addListener(AutosuggestValueAppliedEvent.class, listener);
     }
 
     public void clearDefaultOptionValue() {
@@ -534,7 +534,7 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
         });
 
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
-        getModel().setOptionsForWhenValueIsNull(this.itemsForWhenValueIsNull.values().stream().map(option -> (AutoSuggestTemplateModel.FOption) option).collect(Collectors.toList()));
+        getModel().setOptionsForWhenValueIsNull(this.itemsForWhenValueIsNull.values().stream().map(option -> (AutosuggestTemplateModel.FOption) option).collect(Collectors.toList()));
     }
 
     public void setItemsForWhenValueIsNull(Map<String, T> items) {
@@ -560,7 +560,7 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
         });
 
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
-        getModel().setOptionsForWhenValueIsNull(this.itemsForWhenValueIsNull.values().stream().map(option -> (AutoSuggestTemplateModel.FOption) option).collect(Collectors.toList()));
+        getModel().setOptionsForWhenValueIsNull(this.itemsForWhenValueIsNull.values().stream().map(option -> (AutosuggestTemplateModel.FOption) option).collect(Collectors.toList()));
     }
 
     public void clearTemplateProvider() {
@@ -591,7 +591,7 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
 
             this.items.put(label, new Option(label, searchStr, item));
         });
-        getModel().setOptions(this.items.values().stream().map(option -> (AutoSuggestTemplateModel.FOption) option).collect(Collectors.toList()));
+        getModel().setOptions(this.items.values().stream().map(option -> (AutosuggestTemplateModel.FOption) option).collect(Collectors.toList()));
         //TODO: RESET SELECTION (call clear before setting the options?)
         setLoading(false);
         getElement().executeJs("this._loadingChanged(false)");
@@ -620,7 +620,7 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
         });
 
         //TODO: RESET SELECTION (call clear before setting the options?)
-        getModel().setOptions(this.items.values().stream().map(option -> (AutoSuggestTemplateModel.FOption) option).collect(Collectors.toList()));
+        getModel().setOptions(this.items.values().stream().map(option -> (AutosuggestTemplateModel.FOption) option).collect(Collectors.toList()));
         setLoading(false);
         getElement().executeJs("this._loadingChanged(false)");
     }
@@ -638,8 +638,8 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
      * ValueClearEvent is created when the user clicks on the clean button.
      */
     @DomEvent("clear")
-    public static class ValueClearEvent extends ComponentEvent<AutoSuggest> {
-        public ValueClearEvent(AutoSuggest source, boolean fromClient) {
+    public static class ValueClearEvent extends ComponentEvent<Autosuggest> {
+        public ValueClearEvent(Autosuggest source, boolean fromClient) {
             super(source, fromClient);
         }
     }
@@ -661,8 +661,8 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
 
     @Override
     public Registration addValueChangeListener(
-            ValueChangeListener<? super AutoSuggestValueAppliedEvent> listener) {
-        return addAutoSuggestValueAppliedListener(event -> {
+            ValueChangeListener<? super AutosuggestValueAppliedEvent> listener) {
+        return addAutosuggestValueAppliedListener(event -> {
             listener.valueChanged(event);
         });
     }
@@ -735,10 +735,10 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
      * ValueChangeEvent is created when the value of the TextField changes.
      */
     @DomEvent("value-changed")
-    public static class AucompleteChangeEvent extends ComponentEvent<AutoSuggest> {
+    public static class AucompleteChangeEvent extends ComponentEvent<Autosuggest> {
         private final String value;
 
-        public AucompleteChangeEvent(AutoSuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
+        public AucompleteChangeEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
             super(source, fromClient);
             this.value = value;
         }
@@ -748,16 +748,16 @@ public class AutoSuggest<T> extends PolymerTemplate<AutoSuggest.AutoSuggestTempl
         }
     }
     /**
-     * AutoSuggestValueAppliedEvent is created when the user clicks on a option
-     * of the AutoSuggestr.
+     * AutosuggestValueAppliedEvent is created when the user clicks on a option
+     * of the Autosuggestr.
      */
-    @DomEvent("vcf-auto-suggest-value-applied")
-    public static class AutoSuggestValueAppliedEvent extends ComponentEvent<AutoSuggest>
+    @DomEvent("vcf-autosuggest-value-applied")
+    public static class AutosuggestValueAppliedEvent extends ComponentEvent<Autosuggest>
             implements ValueChangeEvent<String> {
 
         private final String value;
 
-        public AutoSuggestValueAppliedEvent(AutoSuggest source,
+        public AutosuggestValueAppliedEvent(Autosuggest source,
                                              boolean fromClient,
                                              @EventData("event.detail.value") String value) {
             super(source, fromClient);

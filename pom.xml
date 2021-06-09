@@ -6,8 +6,8 @@
     <version>0.9.0</version>
     <packaging>pom</packaging>
     <modules>
-        <module>auto-suggest</module>
-        <module>auto-suggest-demo</module>
+        <module>autosuggest</module>
+        <module>autosuggest-demo</module>
     </modules>
     <name>vcf-autosuggest-parent</name>
     <description>vcf-autosuggest</description>
