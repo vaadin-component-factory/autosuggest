@@ -1,4 +1,4 @@
-package org.vaadin.componentfactory;
+package org.vaadin.componentfactory.componentfactory;
 
 /*
  * #%L
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  */
 
 @Tag("vcf-autosuggest")
-@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.0")
+@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.2")
 @JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
 @CssImport(value = "@vaadin-component-factory/vcf-autosuggest/styles/vcf-autosuggest.css")
 public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTemplateModel>
