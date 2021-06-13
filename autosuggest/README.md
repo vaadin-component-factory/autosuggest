@@ -246,7 +246,7 @@ Some examples of this component usage:
 Clone the project in GitHub (or fork it if you plan on contributing)
 
 ```
-git clone git@github.com:vaadin-component-factory/autosuggest.git
+git clone git@github.com:vaadin-component-factory/suggest.git
 ```
 
 to install project, to your maven repository run
@@ -256,7 +256,7 @@ to install project, to your maven repository run
 
 ## How to run the demo?
 
-The Demo can be run going to the project `autosuggest-demo` and executing the maven goal:
+The Demo can be run going to the project `suggest-demo` and executing the maven goal:
 
 ```mvn spring-boot:run```
 
