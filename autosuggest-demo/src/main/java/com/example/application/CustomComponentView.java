@@ -7,11 +7,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.ToString;
-import org.vaadin.componentfactory.EnhancedAutocomplete;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
+import org.vaadin.componentfactory.componentfactory.Autosuggest;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,232 +49,232 @@ public class CustomComponentView extends FlexLayout {
 
         VerticalLayout col1 = new VerticalLayout(); add(col1);
 
-        EnhancedAutocomplete<String> autocomplete1 = new EnhancedAutocomplete<>();
-        col1.add(new Span("No customization"), autocomplete1);
+        Autosuggest<String> autosuggest1 = new Autosuggest<>();
+        col1.add(new Span("No customization"), autosuggest1);
 
-        EnhancedAutocomplete<String> autocomplete2 = new EnhancedAutocomplete<>();
-        autocomplete2.setShowClearButton(false);
-        autocomplete2.setInputPrefix(new Button("€"));
-        autocomplete2.setPlaceholder("Some placeholder ...");
-        autocomplete2.setItems(generateItems());
-        col1.add(new Span("Prefix + no clear button + placeholder"), autocomplete2);
+        Autosuggest<String> autosuggest2 = new Autosuggest<>();
+        autosuggest2.setShowClearButton(false);
+        autosuggest2.setInputPrefix(new Button("€"));
+        autosuggest2.setPlaceholder("Some placeholder ...");
+        autosuggest2.setItems(generateItems());
+        col1.add(new Span("Prefix + no clear button + placeholder"), autosuggest2);
 
 
-        EnhancedAutocomplete<String> autocomplete3 = new EnhancedAutocomplete<>();
-        autocomplete3.setInputSuffix(new Button("€"));
-        autocomplete3.setItems(generateItems());
-        col1.add(new Span("Suffix + clear button"), autocomplete3);
+        Autosuggest<String> autosuggest3 = new Autosuggest<>();
+        autosuggest3.setInputSuffix(new Button("€"));
+        autosuggest3.setItems(generateItems());
+        col1.add(new Span("Suffix + clear button"), autosuggest3);
 
-        EnhancedAutocomplete<String> autocomplete4 = new EnhancedAutocomplete<>(true);
-        autocomplete4.setInputSuffix(new Span("€"));
-        autocomplete4.setItems(generateItems());
-        col1.add(new Span("Suffix + clear button, clear button placed close to the text"), autocomplete4);
+        Autosuggest<String> autosuggest4 = new Autosuggest<>(true);
+        autosuggest4.setInputSuffix(new Span("€"));
+        autosuggest4.setItems(generateItems());
+        col1.add(new Span("Suffix + clear button, clear button placed close to the text"), autosuggest4);
 
-        EnhancedAutocomplete<String> autocomplete5 = new EnhancedAutocomplete<>();
-        autocomplete5.setPlaceholder("Label is up there");
-        autocomplete5.setLabel("This is a label: *");
-        autocomplete5.setItems(generateItems());
-        col1.add(new Span("Label (position 1) + placeholder"), autocomplete5);
+        Autosuggest<String> autosuggest5 = new Autosuggest<>();
+        autosuggest5.setPlaceholder("Label is up there");
+        autosuggest5.setLabel("This is a label: *");
+        autosuggest5.setItems(generateItems());
+        col1.add(new Span("Label (position 1) + placeholder"), autosuggest5);
 
-        EnhancedAutocomplete<String> autocomplete6 = new EnhancedAutocomplete<>();
-        autocomplete6.setItems(generateItems());
-        col1.add(new Span("With items (matching mode = STARTS_WITH)"), autocomplete6);
+        Autosuggest<String> autosuggest6 = new Autosuggest<>();
+        autosuggest6.setItems(generateItems());
+        col1.add(new Span("With items (matching mode = STARTS_WITH)"), autosuggest6);
 
-        EnhancedAutocomplete<String> autocomplete7 = new EnhancedAutocomplete<>();
-        autocomplete7.setItems(generateItems());
-        autocomplete7.setSearchMatchingMode(EnhancedAutocomplete.SearchMatchingMode.CONTAINS);
-        autocomplete7.setOpenDropdownOnClick(true);
-        col1.add(new Span("With items (matching mode = CONTAINS) + openDropdownOnClick"), autocomplete7);
+        Autosuggest<String> autosuggest7 = new Autosuggest<>();
+        autosuggest7.setItems(generateItems());
+        autosuggest7.setSearchMatchingMode(Autosuggest.SearchMatchingMode.CONTAINS);
+        autosuggest7.setOpenDropdownOnClick(true);
+        col1.add(new Span("With items (matching mode = CONTAINS) + openDropdownOnClick"), autosuggest7);
 
-        EnhancedAutocomplete<String> autocomplete8 = new EnhancedAutocomplete<>();
-        autocomplete8.setItems(generateItems());
-        autocomplete8.setOpenDropdownOnClick(true);
-        autocomplete8.setReadOnly(true);
-        autocomplete8.setValue("avocado");
-        col1.add(new Span("With items + readonly"), autocomplete8);
+        Autosuggest<String> autosuggest8 = new Autosuggest<>();
+        autosuggest8.setItems(generateItems());
+        autosuggest8.setOpenDropdownOnClick(true);
+        autosuggest8.setReadOnly(true);
+        autosuggest8.setValue("avocado");
+        col1.add(new Span("With items + readonly"), autosuggest8);
 
         VerticalLayout col2 = new VerticalLayout(); add(col2);
 
-        EnhancedAutocomplete<String> autocomplete9 = new EnhancedAutocomplete<>();
-        autocomplete9.setItems(generateItems());
-        autocomplete9.setOpenDropdownOnClick(true);
-        autocomplete9.setLimit(1);
-        col2.add(new Span("Limit = 1"), autocomplete9);
+        Autosuggest<String> autosuggest9 = new Autosuggest<>();
+        autosuggest9.setItems(generateItems());
+        autosuggest9.setOpenDropdownOnClick(true);
+        autosuggest9.setLimit(1);
+        col2.add(new Span("Limit = 1"), autosuggest9);
 
 
         Span inputValue10 = new Span("Current input: ");
         Span selectionValue10 = new Span("Selection: ");
         inputValue10.getElement().getStyle().set("font-size", "12px");
         selectionValue10.getElement().getStyle().set("font-size", "12px");
-        EnhancedAutocomplete<String> autocomplete10 = new EnhancedAutocomplete<>();
-        autocomplete10.setItems(generateItems());
+        Autosuggest<String> autosuggest10 = new Autosuggest<>();
+        autosuggest10.setItems(generateItems());
 
-        autocomplete10.addEagerInputChangeListener(event -> {
-            inputValue10.setText("Current input: " + autocomplete10.getInputValue());
+        autosuggest10.addEagerInputChangeListener(event -> {
+            inputValue10.setText("Current input: " + autosuggest10.getInputValue());
         });
 
-        autocomplete10.addValueChangeListener(event -> {
+        autosuggest10.addValueChangeListener(event -> {
             selectionValue10.setText("Selection: " + event.getValue());
         });
 
-        autocomplete10.addValueClearListener(event -> {
+        autosuggest10.addValueClearListener(event -> {
             selectionValue10.setText("Selection: " + "");
         });
 
-        autocomplete10.setPlaceholder("Search ...");
-        autocomplete10.setThemeName("my-autocomplete");
+        autosuggest10.setPlaceholder("Search ...");
+        autosuggest10.setThemeName("my-autosuggest");
 
-        VerticalLayout vl10 = new VerticalLayout(inputValue10, selectionValue10, autocomplete10);
+        VerticalLayout vl10 = new VerticalLayout(inputValue10, selectionValue10, autosuggest10);
         vl10.setPadding(false); vl10.setSpacing(false); vl10.setMargin(false);
         col2.add(new Span("Change listeners"), vl10);
 
-        EnhancedAutocomplete<String> autocomplete11 = new EnhancedAutocomplete<>();
-        autocomplete11.setItems(generateItems());
-        autocomplete11.setCaseSensitive(true);
-        col2.add(new Span("Case sensitive"), autocomplete11);
+        Autosuggest<String> autosuggest11 = new Autosuggest<>();
+        autosuggest11.setItems(generateItems());
+        autosuggest11.setCaseSensitive(true);
+        col2.add(new Span("Case sensitive"), autosuggest11);
 
-        EnhancedAutocomplete<String> autocomplete12 = new EnhancedAutocomplete<>();
-        //autocomplete12.setItems(generateItems());
-        autocomplete12.setLazy(true);
-//        autocomplete12.setLoading(true);
-        autocomplete12.setOpenDropdownOnClick(true);
-        autocomplete12.setComponentToDropdownEndSlot(new HorizontalLayout(new Button("Custom!")));
-        col2.add(new Span("Loading + dropdownEndSlot"), autocomplete12);
+        Autosuggest<String> autosuggest12 = new Autosuggest<>();
+        //autosuggest12.setItems(generateItems());
+        autosuggest12.setLazy(true);
+//        autosuggest12.setLoading(true);
+        autosuggest12.setOpenDropdownOnClick(true);
+        autosuggest12.setComponentToDropdownEndSlot(new HorizontalLayout(new Button("Custom!")));
+        col2.add(new Span("Loading + dropdownEndSlot"), autosuggest12);
 
         Span inputValue13 = new Span("Current input (lazy) [kw=lazy,avocado]: ");
         Span selectionValue13 = new Span("Selection: ");
         inputValue13.getElement().getStyle().set("font-size", "12px");
         selectionValue13.getElement().getStyle().set("font-size", "12px");
-        EnhancedAutocomplete<String> autocomplete13 = new EnhancedAutocomplete<>();
-        autocomplete13.setItems(generateItems());
-        autocomplete13.setLazy(true);
-        autocomplete13.addInputChangeListener(event -> { inputValue13.setText("Current input (lazy) [kw=lazy,avocado]: " + autocomplete13.getInputValue()); });
-        autocomplete13.addInputChangeListener(event -> {
-            autocomplete13.setItems(Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" }));
-            autocomplete13.setLoading(false);
+        Autosuggest<String> autosuggest13 = new Autosuggest<>();
+        autosuggest13.setItems(generateItems());
+        autosuggest13.setLazy(true);
+        autosuggest13.addInputChangeListener(event -> { inputValue13.setText("Current input (lazy) [kw=lazy,avocado]: " + autosuggest13.getInputValue()); });
+        autosuggest13.addInputChangeListener(event -> {
+            autosuggest13.setItems(Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" }));
+            autosuggest13.setLoading(false);
         });
 
-        autocomplete13.addValueChangeListener(event -> {
+        autosuggest13.addValueChangeListener(event -> {
             selectionValue13.setText("Selection: " + event.getValue());
         });
 
-        autocomplete13.addValueClearListener(event -> {
+        autosuggest13.addValueClearListener(event -> {
             selectionValue13.setText("Selection: " + "");
         });
 
-        autocomplete13.setPlaceholder("Search ...");
-        autocomplete13.setThemeName("my-autocomplete");
+        autosuggest13.setPlaceholder("Search ...");
+        autosuggest13.setThemeName("my-autosuggest");
 
-        VerticalLayout vl13 = new VerticalLayout(inputValue13, selectionValue13, autocomplete13);
+        VerticalLayout vl13 = new VerticalLayout(inputValue13, selectionValue13, autosuggest13);
         vl13.setPadding(false); vl13.setSpacing(false); vl13.setMargin(false);
         col2.add(new Span("Lazy"), vl13);
 
-        EnhancedAutocomplete<String> autocomplete14 = new EnhancedAutocomplete<>();
-        autocomplete14.setItems(generateItems());
-        autocomplete14.setCustomizeItemsForWhenValueIsNull(true);
-        autocomplete14.setOpenDropdownOnClick(true);
-        autocomplete14.setItemsForWhenValueIsNull(Arrays.asList(new String[] {"different", "list", "this", "one"}));
-        col2.add(new Span("Initial suggestions (for when input is empty)"), autocomplete14);
+        Autosuggest<String> autosuggest14 = new Autosuggest<>();
+        autosuggest14.setItems(generateItems());
+        autosuggest14.setCustomizeItemsForWhenValueIsNull(true);
+        autosuggest14.setOpenDropdownOnClick(true);
+        autosuggest14.setItemsForWhenValueIsNull(Arrays.asList(new String[] {"different", "list", "this", "one"}));
+        col2.add(new Span("Initial suggestions (for when input is empty)"), autosuggest14);
 
-        EnhancedAutocomplete<String> autocomplete15 = new EnhancedAutocomplete<>(5);
-        autocomplete15.setItems(generateItems());
-        autocomplete15.setOpenDropdownOnClick(true);
-        autocomplete15.setComponentToDropdownEndSlot(new HorizontalLayout(new Button("Custom!")));
-        autocomplete15.setDefaultOptionValue("Default!");
-        col2.add(new Span("Dropdown end slot + default value"), autocomplete15);
+        Autosuggest<String> autosuggest15 = new Autosuggest<>(5);
+        autosuggest15.setItems(generateItems());
+        autosuggest15.setOpenDropdownOnClick(true);
+        autosuggest15.setComponentToDropdownEndSlot(new HorizontalLayout(new Button("Custom!")));
+        autosuggest15.setDefaultOptionValue("Default!");
+        col2.add(new Span("Dropdown end slot + default value"), autosuggest15);
 
-        EnhancedAutocomplete<Fruit> autocomplete23 = new EnhancedAutocomplete<>();
-        autocomplete23.setItems(generateItemsMap());
-        autocomplete23.setOpenDropdownOnClick(true);
-        autocomplete23.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        autocomplete23.setSearchStringGenerator(item -> "fwc " + item.getName());
-        autocomplete23.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-enhanced-autocomplete-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.label}')\" class=\"aaa\">${option.label} ${option.optId}</button>`;}");
-        col2.add(new Span("Objects + template provider + customSearch (fwc xxxxx)"), autocomplete23);
+        Autosuggest<Fruit> autosuggest23 = new Autosuggest<>();
+        autosuggest23.setItems(generateItemsMap());
+        autosuggest23.setOpenDropdownOnClick(true);
+        autosuggest23.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        autosuggest23.setSearchStringGenerator(item -> "fwc " + item.getName());
+        autosuggest23.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.label}')\" class=\"aaa\">${option.label} ${option.optId}</button>`;}");
+        col2.add(new Span("Objects + template provider + customSearch (fwc xxxxx)"), autosuggest23);
 
         VerticalLayout col3 = new VerticalLayout(); add(col3);
 
-        EnhancedAutocomplete<String> autocomplete16 = new EnhancedAutocomplete<>();
+        Autosuggest<String> autosuggest16 = new Autosuggest<>();
         List<String> items16 = generateItems().stream().collect(Collectors.toList());
         items16.add("This is a very long item and the dropdown should grow to show it");
-        autocomplete16.setItems(items16);
-        autocomplete16.setOpenDropdownOnClick(true);
-        col3.add(new Span("Very long option"), autocomplete16);
+        autosuggest16.setItems(items16);
+        autosuggest16.setOpenDropdownOnClick(true);
+        col3.add(new Span("Very long option"), autosuggest16);
 
-        EnhancedAutocomplete<String> autocomplete17 = new EnhancedAutocomplete<>();
-        autocomplete17.setItems(generateItems());
-        autocomplete17.setOpenDropdownOnClick(true);
-        autocomplete17.getTextField().setWidth("400px");
-        col3.add(new Span("Custom text field width"), autocomplete17);
+        Autosuggest<String> autosuggest17 = new Autosuggest<>();
+        autosuggest17.setItems(generateItems());
+        autosuggest17.setOpenDropdownOnClick(true);
+        autosuggest17.getTextField().setWidth("400px");
+        col3.add(new Span("Custom text field width"), autosuggest17);
 
         Span inputValue18 = new Span("Current input (lazy) [kw=lazy,avocado], lambda: ");
         Span selectionValue18 = new Span("Selection: ");
         inputValue18.getElement().getStyle().set("font-size", "12px");
         selectionValue18.getElement().getStyle().set("font-size", "12px");
-        EnhancedAutocomplete<String> autocomplete18 = new EnhancedAutocomplete<>();
-        autocomplete18.setItems(generateItems());
-        autocomplete18.setLazy(true);
-        autocomplete18.setLazyProviderSimple(inputValue -> {
+        Autosuggest<String> autosuggest18 = new Autosuggest<>();
+        autosuggest18.setItems(generateItems());
+        autosuggest18.setLazy(true);
+        autosuggest18.setLazyProviderSimple(inputValue -> {
             try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }
             return Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" });
         });
-        autocomplete18.addInputChangeListener(event -> {
-            inputValue18.setText("Current input (lazy) [kw=lazy,avocado], lambda: " + autocomplete18.getInputValue());
+        autosuggest18.addInputChangeListener(event -> {
+            inputValue18.setText("Current input (lazy) [kw=lazy,avocado], lambda: " + autosuggest18.getInputValue());
         });
 
-        autocomplete18.addValueChangeListener(event -> {
+        autosuggest18.addValueChangeListener(event -> {
             selectionValue18.setText("Selection: " + event.getValue());
         });
 
-        autocomplete18.addValueClearListener(event -> {
+        autosuggest18.addValueClearListener(event -> {
             selectionValue18.setText("Selection: " + "");
         });
 
-        autocomplete18.setPlaceholder("Search ...");
-        autocomplete18.setThemeName("my-autocomplete");
+        autosuggest18.setPlaceholder("Search ...");
+        autosuggest18.setThemeName("my-autosuggest");
 
-        VerticalLayout vl18 = new VerticalLayout(inputValue18, selectionValue18, autocomplete18);
+        VerticalLayout vl18 = new VerticalLayout(inputValue18, selectionValue18, autosuggest18);
         vl18.setPadding(false); vl18.setSpacing(false); vl18.setMargin(false);
         col3.add(new Span("Lazy, lambda"), vl18);
 
-        EnhancedAutocomplete<Fruit> autocomplete19 = new EnhancedAutocomplete<>();
-        autocomplete19.setItems(generateItemsMap());
-        autocomplete19.setOpenDropdownOnClick(true);
-        col3.add(new Span("Objects"), autocomplete19);
+        Autosuggest<Fruit> autosuggest19 = new Autosuggest<>();
+        autosuggest19.setItems(generateItemsMap());
+        autosuggest19.setOpenDropdownOnClick(true);
+        col3.add(new Span("Objects"), autosuggest19);
 
-        EnhancedAutocomplete<Fruit> autocomplete20 = new EnhancedAutocomplete<>();
-        autocomplete20.setItems(generateItemsMap());
-        autocomplete20.setOpenDropdownOnClick(true);
-        autocomplete20.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        col3.add(new Span("Objects + label generator"), autocomplete20);
+        Autosuggest<Fruit> autosuggest20 = new Autosuggest<>();
+        autosuggest20.setItems(generateItemsMap());
+        autosuggest20.setOpenDropdownOnClick(true);
+        autosuggest20.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        col3.add(new Span("Objects + label generator"), autosuggest20);
 
-        EnhancedAutocomplete<Fruit> autocomplete21 = new EnhancedAutocomplete<>();
-        autocomplete21.setItems(generateItemsMap());
-        autocomplete21.setOpenDropdownOnClick(true);
-        autocomplete21.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        autocomplete21.setSearchStringGenerator(item -> "fwc " + item.getName());
-        col3.add(new Span("Objects + label generator + customSearch (fwc xxxxx)"), autocomplete21);
+        Autosuggest<Fruit> autosuggest21 = new Autosuggest<>();
+        autosuggest21.setItems(generateItemsMap());
+        autosuggest21.setOpenDropdownOnClick(true);
+        autosuggest21.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        autosuggest21.setSearchStringGenerator(item -> "fwc " + item.getName());
+        col3.add(new Span("Objects + label generator + customSearch (fwc xxxxx)"), autosuggest21);
 
-        EnhancedAutocomplete<Fruit> autocomplete22 = new EnhancedAutocomplete<>();
-        autocomplete22.setItems(generateItemsMap());
-        autocomplete22.setOpenDropdownOnClick(true);
-        autocomplete22.setItemsForWhenValueIsNull(generateItems1());
-        autocomplete22.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        autocomplete22.setItems(generateItems1());
-        autocomplete22.setLazy(true);
-        autocomplete22.setLazyProviderSimple(inputValue -> {
+        Autosuggest<Fruit> autosuggest22 = new Autosuggest<>();
+        autosuggest22.setItems(generateItemsMap());
+        autosuggest22.setOpenDropdownOnClick(true);
+        autosuggest22.setItemsForWhenValueIsNull(generateItems1());
+        autosuggest22.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        autosuggest22.setItems(generateItems1());
+        autosuggest22.setLazy(true);
+        autosuggest22.setLazyProviderSimple(inputValue -> {
             if(inputValue.trim().length()==0) return Arrays.asList(new Fruit[]{});
             try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }
             return Arrays.asList(new Fruit[]{ new Fruit("lazy avocado 1"), new Fruit("lazy avocado 2"), new Fruit("avocado lazy 3" )});
         });
 
-        col3.add(new Span("Objects + lazy + different values for input=null"), autocomplete22);
+        col3.add(new Span("Objects + lazy + different values for input=null"), autosuggest22);
 
-        EnhancedAutocomplete<Fruit> autocomplete24 = new EnhancedAutocomplete<>();
-        autocomplete24.setItems(generateItemsMap());
-        autocomplete24.setOpenDropdownOnClick(true);
-        autocomplete24.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        autocomplete24.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-enhanced-autocomplete-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.label}')\" class=\"aaa\">${option.label}</button>`;}");
-        col3.add(new Span("Objects + template provider"), autocomplete24);
+        Autosuggest<Fruit> autosuggest24 = new Autosuggest<>();
+        autosuggest24.setItems(generateItemsMap());
+        autosuggest24.setOpenDropdownOnClick(true);
+        autosuggest24.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        autosuggest24.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.label}')\" class=\"aaa\">${option.label}</button>`;}");
+        col3.add(new Span("Objects + template provider"), autosuggest24);
     }
 
 }

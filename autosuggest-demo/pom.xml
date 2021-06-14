@@ -171,6 +171,11 @@
         </dependency>
         <dependency>
             <groupId>com.vaadin.componentfactory</groupId>
+            <artifactId>autosuggest</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin.componentfactory</groupId>
             <artifactId>vcf-autosuggest</artifactId>
             <version>1.0</version>
         </dependency>
