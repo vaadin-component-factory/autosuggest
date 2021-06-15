@@ -753,7 +753,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
      */
     @DomEvent("vcf-autosuggest-value-applied")
     public static class AutosuggestValueAppliedEvent extends ComponentEvent<Autosuggest>
-            implements ValueChangeEvent<String> {
+            implements HasValue.ValueChangeEvent<String> {
 
         private final String value;
 
