@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.vaadin.addons.componentfactory</groupId>
-    <artifactId>vcf-autosuggest-demo</artifactId>
+    <artifactId>autosuggest-demo</artifactId>
     <name>VCF Autosuggest Demo</name>
     <version>1.0</version>
     <packaging>war</packaging>
