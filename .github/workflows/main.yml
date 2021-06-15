@@ -34,7 +34,7 @@ jobs:
       with:
         java-version: 1.8
     - name: Build with Maven
-      run: mvn -B package -Pproduction --file pom.xml
+      run: mvn -B clean install package -Pproduction --file pom.xml
     - name: Rename the war and remove the version
       run: mv ${{ secrets.DEMO_NAME }}/target/${{ secrets.DEMO_NAME }}*.war ${{ secrets.DEMO_NAME }}.war
     - name: SCP to the server
