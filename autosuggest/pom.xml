@@ -3,10 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.vaadin.componentfactory</groupId>
+    <groupId>org.vaadin.addons.componentfactory</groupId>
     <artifactId>autosuggest</artifactId>
     <name>Autosuggest</name>
-    <version>1.0</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -135,11 +135,6 @@
             <artifactId>webdrivermanager</artifactId>
             <version>3.8.1</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin.componentfactory</groupId>
-            <artifactId>enhanced-dialog</artifactId>
-            <version>1.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

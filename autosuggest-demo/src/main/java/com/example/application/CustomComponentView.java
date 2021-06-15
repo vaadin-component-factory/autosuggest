@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
-import org.vaadin.componentfactory.componentfactory.Autosuggest;
+import org.vaadin.addons.componentfactory.Autosuggest;
 
 import java.util.*;
 import java.util.stream.Collectors;
