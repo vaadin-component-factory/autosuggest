@@ -1,4 +1,4 @@
-package com.example.application;
+package org.vaadin.addons.demo;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;

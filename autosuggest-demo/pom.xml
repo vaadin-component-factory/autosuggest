@@ -6,7 +6,7 @@
     <groupId>org.vaadin.addons.componentfactory</groupId>
     <artifactId>autosuggest-demo</artifactId>
     <name>VCF Autosuggest Demo</name>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <packaging>war</packaging>
 
     <parent>
@@ -162,7 +162,7 @@
         <dependency>
             <groupId>org.vaadin.addons.componentfactory</groupId>
             <artifactId>autosuggest</artifactId>
-            <version>1.0.4</version>
+            <version>1.0.5</version>
         </dependency>
     </dependencies>
 
@@ -219,7 +219,6 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <vaadin.productionMode>true</vaadin.productionMode>
                             <productionMode>true</productionMode>
                         </configuration>
                     </plugin>
