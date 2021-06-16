@@ -5,7 +5,7 @@ Autosuggest is a text input with a panel of suggested options. When user changes
 Lazy loading, default value, customization, component slots, template rendering are all supported features.
 
 
-[Live Demo ↗](https://incubator.app.fi/autosuggest-demo/autosuggest)
+[Live Demo ↗](https://incubator.app.fi/autosuggest-demo)
 
 ## Usage
 

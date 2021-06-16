@@ -1,0 +1,10 @@
+
+autosuggest/node_modules/
+
+node_modules/
+
+autosuggest-demo/target/
+
+autosuggest/target/
+
+.idea/
