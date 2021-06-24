@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 @JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
 @CssImport(value = "@vaadin-component-factory/vcf-autosuggest/styles/style.css")
 public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTemplateModel>
-        implements HasTheme, HasSize, HasValue<Autosuggest.AutosuggestValueAppliedEvent, String>, Focusable<Autosuggest>, HasValidation {
+        implements HasTheme, HasSize, Focusable<Autosuggest>, HasValidation {
 
     /**
      * This model binds properties {@link Autosuggest} and
@@ -73,6 +73,8 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             String searchStr;
         }
 
+        String getInputValue();
+        String getSelectedValue();
         List<FOption> getOptions();
         List<FOption> getOptionsForWhenValueIsNull();
         String getPlaceholder();
@@ -168,7 +170,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
      * @param limit
      *            maximum number of displayed options
      */
-    public Autosuggest(int limit) { //TODO: TEST THE LIMIT PROPERTY
+    public Autosuggest(int limit) {
         this();
         setLimit(limit);
     }
@@ -193,12 +195,13 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         clearButton.getElement().setAttribute("aria-label", "Add new item");
         clearButton.getElement().getStyle().set("display", "none");
         clearButton.setId("button-clear");
-        addValueChangeListener(valueChangeEvent -> {
+        addValueChangeListener(valueChangeEvent -> { //TODO: USE @SYNCHRONIZE
             if(showClearButton && valueChangeEvent.value != null && !valueChangeEvent.value.isEmpty() && !isReadOnly()) {
-                clearButton.getElement().getStyle().set("display", "block");
+                clearButton.getElement().getStyle().set("display", "block"); //TODO: GENERATE EVENT FOR TXTFIELD
             } else {
                 clearButton.getElement().getStyle().set("display", "none");
             }
+
         });
 
         // Init input prefix
@@ -314,25 +317,14 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         getModel().setPlaceholder(placeholder);
     }
 
-    @Override
     public void setReadOnly(boolean readOnly) {
         getModel().setReadOnly(readOnly);
-        if(showClearButton && getValue() != null && !getValue().isEmpty() && !readOnly) {
+        if(showClearButton && getValueLabel() != null && !getValueLabel().isEmpty() && !readOnly) {
             clearButton.getElement().getStyle().set("display", "block");
         } else {
             clearButton.getElement().getStyle().set("display", "none");
         }
         textField.setReadOnly(readOnly);
-    }
-
-    public String getValue() {
-        return getElement().getProperty("selectedValue", null);
-    }
-
-    public T getValueItem() {
-        String label = getValue();
-        if( this.items.containsKey(label) ) return null;
-        return this.items.get(label).item;
     }
 
     /**
@@ -357,14 +349,35 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
        getModel().setLimit(limit);
     }
 
-    /**
-     * Gets the current imputed text from the TxtField.
-     *
-     * @return value text
-     */
-    @Synchronize(property = "value", value = "value-changed")
+    @Synchronize(property = "inputValue", value = "vcf-autosuggest-input-value-changed")
     public String getInputValue() {
-        return getElement().getProperty("value", "");
+        return getElement().getProperty("inputValue", null);
+    }
+
+    @Synchronize(property = "selectedValue", value = "vcf-autosuggest-value-applied")
+    public String getValueLabel() {
+        String lblValue = getElement().getProperty("selectedValue", null);
+        return lblValue;
+    }
+
+    public T getValue() {
+        String lblValue = getElement().getProperty("selectedValue", null);
+        if( this.items != null && this.items.containsKey(lblValue) ) return this.items.get(lblValue).item;
+        return null;
+    }
+
+    public void setValueByLabel(String value) {
+        if(!this.items.containsKey(value)) throw new NullPointerException("No item found for label " + value);
+        getElement().executeJs("this._applyValue(\"" + value + "\");");
+    }
+
+    public void setValue(T item) {
+        if(item == null) getElement().executeJs("this._applyValue(null);");
+        if(this.labelGenerator != null) {
+            setValueByLabel(this.labelGenerator.generate(item));
+        } else {
+            setValueByLabel(item.toString());
+        }
     }
 
     /**
@@ -401,11 +414,11 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         getModel().setCustomizeOptionsForWhenValueIsNull(v);
     }
 
-    public Registration addEagerInputChangeListener(ComponentEventListener<AucompleteChangeEvent> listener) {
-        return addListener(AucompleteChangeEvent.class, listener);
+    public Registration addEagerInputChangeListener(ComponentEventListener<EagerInputChangeEvent> listener) {
+        return addListener(EagerInputChangeEvent.class, listener);
     }
 
-    public Registration addInputChangeListener(ValueChangeListener listener) {
+    public Registration addInputChangeListener(HasValue.ValueChangeListener listener) {
         return textField.addValueChangeListener(listener);
     }
 
@@ -417,7 +430,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
      *            the listener
      * @return a {@link Registration} for removing the event listener
      */
-    public Registration addAutosuggestValueAppliedListener(
+    public Registration addValueChangeListener(
             ComponentEventListener<AutosuggestValueAppliedEvent> listener) {
         return addListener(AutosuggestValueAppliedEvent.class, listener);
     }
@@ -446,7 +459,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         if(lazyInputChangeER!=null) lazyInputChangeER.remove();
         if(getModel().getLazy()) {
             lazyInputChangeER = addInputChangeListener(valueChangeEvent -> {
-                setItems(ff.refresh(getInputValue()));
+                setItems(ff.refresh(getModel().getInputValue()));
             });
         }
     }
@@ -455,7 +468,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         if(lazyInputChangeER!=null) lazyInputChangeER.remove();
         if(getModel().getLazy()) {
             lazyInputChangeER = addInputChangeListener(valueChangeEvent -> {
-                setItems(ff.refresh(getInputValue()));
+                setItems(ff.refresh(getModel().getInputValue()));
             });
         }
     }
@@ -518,8 +531,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             String label;
             String searchStr;
 
-            //..... templaterenderer ?
-
             if(this.labelGenerator != null) {
                 label = this.labelGenerator.generate(item);
             } else {
@@ -543,8 +554,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             T item = items.get(key);
             String label;
             String searchStr;
-
-            //..... templaterenderer ?
 
             if(this.labelGenerator != null) {
                 label = this.labelGenerator.generate(item);
@@ -577,8 +586,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             String label;
             String searchStr;
 
-            //..... templaterenderer ?
-
             if(this.labelGenerator != null) {
                 label = this.labelGenerator.generate(item);
             } else {
@@ -592,7 +599,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             this.items.put(label, new Option(label, searchStr, item));
         });
         getModel().setOptions(this.items.values().stream().map(option -> (AutosuggestTemplateModel.FOption) option).collect(Collectors.toList()));
-        //TODO: RESET SELECTION (call clear before setting the options?)
+        getElement().executeJs("this.clear();");
         setLoading(false);
         getElement().executeJs("this._loadingChanged(false)");
     }
@@ -603,8 +610,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             T item = items.get(key);
             String label;
             String searchStr;
-
-            //..... templaterenderer ?
 
             if(this.labelGenerator != null) {
                 label = this.labelGenerator.generate(item);
@@ -619,7 +624,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             this.items.put(label, new Option(label, searchStr, item));
         });
 
-        //TODO: RESET SELECTION (call clear before setting the options?)
+        getElement().executeJs("this.clear();");
         getModel().setOptions(this.items.values().stream().map(option -> (AutosuggestTemplateModel.FOption) option).collect(Collectors.toList()));
         setLoading(false);
         getElement().executeJs("this._loadingChanged(false)");
