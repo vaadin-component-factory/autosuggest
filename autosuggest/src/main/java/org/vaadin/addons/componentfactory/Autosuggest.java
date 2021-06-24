@@ -195,13 +195,12 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         clearButton.getElement().setAttribute("aria-label", "Add new item");
         clearButton.getElement().getStyle().set("display", "none");
         clearButton.setId("button-clear");
-        addValueChangeListener(valueChangeEvent -> { //TODO: USE @SYNCHRONIZE
+        addValueChangeListener(valueChangeEvent -> {
             if(showClearButton && valueChangeEvent.value != null && !valueChangeEvent.value.isEmpty() && !isReadOnly()) {
-                clearButton.getElement().getStyle().set("display", "block"); //TODO: GENERATE EVENT FOR TXTFIELD
+                clearButton.getElement().getStyle().set("display", "block");
             } else {
                 clearButton.getElement().getStyle().set("display", "none");
             }
-
         });
 
         // Init input prefix
@@ -630,15 +629,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         getElement().executeJs("this._loadingChanged(false)");
     }
 
-    public void setValue(String value) {
-        getElement().executeJs("this._applyValue(\"" + value + "\");");
-        //TODO: CHECK IF VALUE EXISTS. ATT FOR CASE SENSIT
-    }
-
-    public void setValueItem(T item) {
-        //TODO
-    }
-
     /**
      * ValueClearEvent is created when the user clicks on the clean button.
      */
@@ -649,27 +639,20 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         }
     }
 
-    @Override
     public boolean isReadOnly() {
         return textField.isReadOnly();
     }
 
-    @Override
     public void setRequiredIndicatorVisible(boolean requiredIndicatorVisible) {
         textField.setRequiredIndicatorVisible(requiredIndicatorVisible);
     }
 
-    @Override
     public boolean isRequiredIndicatorVisible() {
         return textField.isRequiredIndicatorVisible();
     }
 
-    @Override
-    public Registration addValueChangeListener(
-            ValueChangeListener<? super AutosuggestValueAppliedEvent> listener) {
-        return addAutosuggestValueAppliedListener(event -> {
-            listener.valueChanged(event);
-        });
+    public Registration addValueAppliedListener(ComponentEventListener<AutosuggestValueAppliedEvent> listener) {
+        return addListener(AutosuggestValueAppliedEvent.class, listener);
     }
 
     @Override
@@ -739,11 +722,11 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     /**
      * ValueChangeEvent is created when the value of the TextField changes.
      */
-    @DomEvent("value-changed")
-    public static class AucompleteChangeEvent extends ComponentEvent<Autosuggest> {
+    @DomEvent("vcf-autosuggest-input-value-changed")
+    public static class EagerInputChangeEvent extends ComponentEvent<Autosuggest> {
         private final String value;
 
-        public AucompleteChangeEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
+        public EagerInputChangeEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
             super(source, fromClient);
             this.value = value;
         }
@@ -757,8 +740,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
      * of the Autosuggestr.
      */
     @DomEvent("vcf-autosuggest-value-applied")
-    public static class AutosuggestValueAppliedEvent extends ComponentEvent<Autosuggest>
-            implements HasValue.ValueChangeEvent<String> {
+    public static class AutosuggestValueAppliedEvent extends ComponentEvent<Autosuggest> {
 
         private final String value;
 
@@ -773,19 +755,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         public String getValue() {
             return value;
         }
-
-        @Override
-        public HasValue getHasValue() {
-            // TODO Auto-generated method stub
-            return (HasValue) source;
-        }
-
-        @Override
-        public String getOldValue() {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
     }
 
     public enum SearchMatchingMode { STARTS_WITH, CONTAINS }
