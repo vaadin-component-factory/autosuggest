@@ -2,6 +2,7 @@ package org.vaadin.addons.demo;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Route(value = "")
 @Theme(value = Lumo.class)
+//@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.9")
 public class CustomComponentView extends VerticalLayout {
     @Data
     @AllArgsConstructor
@@ -154,10 +156,11 @@ public class CustomComponentView extends VerticalLayout {
         Autosuggest<String> autosuggest13 = new Autosuggest<>();
         autosuggest13.setItems(generateItems());
         autosuggest13.setLazy(true);
-        autosuggest13.addInputChangeListener(event -> { inputValue13.setText("Current input (lazy) [kw=lazy,avocado]: " + autosuggest13.getInputValue()); });
         autosuggest13.addInputChangeListener(event -> {
+            inputValue13.setText("Current input (lazy) [kw=lazy,avocado]: " + autosuggest13.getInputValue());
+        });
+        autosuggest13.addLazyDataRequestListener(event -> {
             autosuggest13.setItems(Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" }));
-            autosuggest13.setLoading(false);
         });
 
         autosuggest13.addValueChangeListener(event -> {
@@ -286,23 +289,6 @@ public class CustomComponentView extends VerticalLayout {
         VerticalLayout second = new VerticalLayout(); add(second);
         second.setWidthFull();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         second.add(new Span("TEST EXAMPLE"));
 
 
@@ -349,13 +335,8 @@ public class CustomComponentView extends VerticalLayout {
         });
 
         field.addValueChangeListener(e -> {
-            // this.cachedValue = e.getValue();    // -> Returns the generated Label instead of the Object
-            //field.getValueItem();  // -> Produces NullPointerException
-
-            int y=55;
             Person x = field.getValue();
             cpTxt.setText(x == null ? "" : x.address);
-            //
         });
     }
 
