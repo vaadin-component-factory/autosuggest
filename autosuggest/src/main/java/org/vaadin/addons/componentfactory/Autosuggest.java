@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  */
 
 @Tag("vcf-autosuggest")
-@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.8")
+@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.9")
 @JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
 @CssImport(value = "@vaadin-component-factory/vcf-autosuggest/styles/style.css")
 public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTemplateModel>
@@ -90,6 +90,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         Boolean getDisableSearchHighlighting();
         Boolean getLoading();
         String getCustomItemTemplate();
+        Boolean getOpened();
         void setLoading(Boolean loading);
         void setOptions(List<FOption> options);
         void setOptionsForWhenValueIsNull(List<FOption> options);
@@ -105,6 +106,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         void setDefaultValue(String v);
         void setDisableSearchHighlighting(Boolean v);
         void setCustomItemTemplate(String tpl);
+        void setOpened(Boolean v);
     }
 
     class Option extends AutosuggestTemplateModel.FOption {
@@ -162,7 +164,9 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     private FlexLayout inputSuffix;
     private Button clearButton;
 
-    private Registration lazyInputChangeER;
+    private Registration inputTextChangeEvent;
+    private Registration selectionEvent;
+    private Registration lazyDataRequestEventH;
 
     /**
      * Constructor that sets the maximum number of displayed options.
@@ -261,6 +265,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setLoading(boolean loading) {
         getModel().setLoading(loading);
+        getElement().executeJs("this._loadingChanged(" + loading + ")");
     }
 
     public Boolean isCaseSensitive() {
@@ -278,6 +283,29 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     public void setLazy(boolean lazy) {
         textField.setValueChangeMode(lazy ? ValueChangeMode.LAZY : ValueChangeMode.ON_CHANGE);
         getModel().setLazy(lazy);
+        if(inputTextChangeEvent!=null) inputTextChangeEvent.remove();
+        if(selectionEvent!=null) selectionEvent.remove();
+        if(lazy) {
+            inputTextChangeEvent = addInputChangeListener(valueChangeEvent -> {
+                if(!valueChangeEvent.isFromClient()) {
+                    if(valueChangeEvent.getValue() == null || valueChangeEvent.getValue().toString().length()==0) getElement().executeJs("this.clear();");
+                    setLoading(false);
+                    getElement().executeJs("this._loadingChanged(false)");
+                    return;
+                }
+
+                if(     (valueChangeEvent.getValue() == null) ||
+                        (valueChangeEvent.getValue().toString().length() == 0) ||
+                        (this.items != null && this.items.containsKey(valueChangeEvent.getValue().toString()))  ) {
+                    setLoading(false);
+                    return;
+                }
+                getEventBus().fireEvent(new AutosuggestLazyDataRequestEvent(this, true, valueChangeEvent.getValue().toString()));
+            });
+            selectionEvent = addValueAppliedListener(autosuggestValueAppliedEvent -> {
+                textField.setValue(autosuggestValueAppliedEvent.getValue());
+            });
+        }
     }
 
     public SearchMatchingMode getSearchMatchingMode() {
@@ -421,6 +449,10 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         return textField.addValueChangeListener(listener);
     }
 
+    public Registration addLazyDataRequestListener(ComponentEventListener<AutosuggestLazyDataRequestEvent> listener) {
+        return getEventBus().addListener(AutosuggestLazyDataRequestEvent.class, listener);
+    }
+
     /**
      * Adds a listener for {@code AutosuggestValueAppliedEvent} events fired by
      * the webcomponent.
@@ -455,21 +487,13 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     public void setLazyProviderSimple(LazyProviderFunctionSimple<T> ff) {
-        if(lazyInputChangeER!=null) lazyInputChangeER.remove();
-        if(getModel().getLazy()) {
-            lazyInputChangeER = addInputChangeListener(valueChangeEvent -> {
-                setItems(ff.refresh(getModel().getInputValue()));
-            });
-        }
+        if(lazyDataRequestEventH!=null) lazyDataRequestEventH.remove();
+        lazyDataRequestEventH = addLazyDataRequestListener(event -> setItems(ff.refresh(getModel().getInputValue())));
     }
 
     public void setLazyProviderMap(LazyProviderFunctionMap<T> ff) {
-        if(lazyInputChangeER!=null) lazyInputChangeER.remove();
-        if(getModel().getLazy()) {
-            lazyInputChangeER = addInputChangeListener(valueChangeEvent -> {
-                setItems(ff.refresh(getModel().getInputValue()));
-            });
-        }
+        if(lazyDataRequestEventH!=null) lazyDataRequestEventH.remove();
+        lazyDataRequestEventH = addLazyDataRequestListener(event -> setItems(ff.refresh(getModel().getInputValue())));
     }
 
     public void unsetLabelGenerator() {
@@ -598,7 +622,8 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             this.items.put(label, new Option(label, searchStr, item));
         });
         getModel().setOptions(this.items.values().stream().map(option -> (AutosuggestTemplateModel.FOption) option).collect(Collectors.toList()));
-        getElement().executeJs("this.clear();");
+        getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
+        getElement().executeJs("this.clear(true);");
         setLoading(false);
         getElement().executeJs("this._loadingChanged(false)");
     }
@@ -623,7 +648,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             this.items.put(label, new Option(label, searchStr, item));
         });
 
-        getElement().executeJs("this.clear();");
+        getElement().executeJs("this.clear(true);");
         getModel().setOptions(this.items.values().stream().map(option -> (AutosuggestTemplateModel.FOption) option).collect(Collectors.toList()));
         setLoading(false);
         getElement().executeJs("this._loadingChanged(false)");
@@ -744,9 +769,23 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
         private final String value;
 
-        public AutosuggestValueAppliedEvent(Autosuggest source,
-                                             boolean fromClient,
-                                             @EventData("event.detail.value") String value) {
+        public AutosuggestValueAppliedEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
+            super(source, fromClient);
+            this.value = value;
+            this.source = source;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    //@DomEvent("vcf-autosuggest-lazy-data-request")
+    public static class AutosuggestLazyDataRequestEvent extends ComponentEvent<Autosuggest> {
+
+        private final String value;
+
+        public AutosuggestLazyDataRequestEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
             super(source, fromClient);
             this.value = value;
             this.source = source;
