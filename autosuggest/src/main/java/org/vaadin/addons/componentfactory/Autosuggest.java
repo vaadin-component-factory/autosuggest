@@ -40,6 +40,7 @@ import lombok.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.lang.IllegalArgumentException;
 
 /**
  * Server-side component for the <code>vcf-autosuggest</code> element.
@@ -394,16 +395,19 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     public void setValueByLabel(String value) {
-        if(!this.items.containsKey(value)) throw new NullPointerException("No item found for label " + value);
+        if(!this.items.containsKey(value)) throw new IllegalArgumentException("No item found for label " + value);
         getElement().executeJs("this._applyValue(\"" + value + "\");");
     }
 
     public void setValue(T item) {
-        if(item == null) getElement().executeJs("this._applyValue(null);");
-        if(this.labelGenerator != null) {
-            setValueByLabel(this.labelGenerator.generate(item));
+        if(item == null) {
+            getElement().executeJs("this._applyValue(null);");
         } else {
-            setValueByLabel(item.toString());
+            if(this.labelGenerator != null) {
+                setValueByLabel(this.labelGenerator.generate(item));
+            } else {
+                setValueByLabel(item.toString());
+            }
         }
     }
 
