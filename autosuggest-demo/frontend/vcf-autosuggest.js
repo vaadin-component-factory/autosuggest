@@ -299,7 +299,7 @@ import './vcf-autosuggest-overlay';
     }
 
 	_hasDefaultOption() {
-		return (this._defaultOption != null && this._defaultOption.key != null);
+		return (this._defaultOption != null && this._defaultOption.label != null);
 	}
 
     _limitOptions(options) {
@@ -450,7 +450,8 @@ import './vcf-autosuggest-overlay';
 
     _applyValue(value, keepDropdownOpened=false) {
         if(value == null && this._hasDefaultOption()) value = this._defaultOption.label;
-        this.selectedValue = (value == this._defaultOption.label ? null : value); //TODO
+        this.selectedValue = (value == this._defaultOption.label ? null : value);
+        console.log("SELECTED VAL: ", this.selectedValue)
         this.dispatchEvent(
             new CustomEvent('vcf-autosuggest-value-applied', {
                 bubbles: true,
