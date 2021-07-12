@@ -270,7 +270,7 @@ import './vcf-autosuggest-overlay';
 
     _optionClicked(ev) {
         console.log(ev)
-        //this._applyValue(ev.model.option.key);
+        this._applyValue(ev.model.option.key);
     }
 
     _refreshOptionsToDisplay(options, value) {
