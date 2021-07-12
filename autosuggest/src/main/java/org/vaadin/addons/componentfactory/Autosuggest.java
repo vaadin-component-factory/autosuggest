@@ -197,12 +197,16 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         textField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 
         // Init clear button
-        clearButton = new Button(new Icon("lumo:cross"), buttonClickEvent -> getElement().executeJs("this.clear()"));
+        Icon clearIcon = new Icon("lumo:cross");
+        clearIcon.getElement().getStyle().set("color", "var(--lumo-contrast-70pct)");
+        clearButton = new Button(clearIcon, buttonClickEvent -> getElement().executeJs("this.clear()"));
         clearButton.getElement().getThemeList().add("icon");
         clearButton.getElement().getThemeList().add("tertiary");
         clearButton.getElement().getThemeList().add("small");
-        clearButton.getElement().setAttribute("aria-label", "Add new item");
+        clearButton.getElement().setAttribute("aria-label", "");
         clearButton.getElement().getStyle().set("display", "none");
+        clearButton.getElement().getStyle().set("font-size", "var(--lumo-icon-size-m)");
+        clearButton.getElement().getStyle().set("padding", "0");
         clearButton.setId("button-clear");
         addValueChangeListener(valueChangeEvent -> {
             if(showClearButton && valueChangeEvent.value != null && !valueChangeEvent.value.isEmpty() && !isReadOnly()) {
