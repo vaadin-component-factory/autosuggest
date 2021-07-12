@@ -269,7 +269,6 @@ import './vcf-autosuggest-overlay';
     }
 
     _optionClicked(ev) {
-        console.log(ev)
         this._applyValue(ev.model.option.key);
     }
 
@@ -299,7 +298,7 @@ import './vcf-autosuggest-overlay';
     }
 
 	_hasDefaultOption() {
-		return (this._defaultOption != null && this._defaultOption.label != null);
+		return (this._defaultOption != null && this._defaultOption.key != null);
 	}
 
     _limitOptions(options) {
@@ -451,7 +450,6 @@ import './vcf-autosuggest-overlay';
     _applyValue(value, keepDropdownOpened=false) {
         if(value == null && this._hasDefaultOption()) value = this._defaultOption.label;
         this.selectedValue = (value == this._defaultOption.label ? null : value);
-        console.log("SELECTED VAL: ", this.selectedValue)
         this.dispatchEvent(
             new CustomEvent('vcf-autosuggest-value-applied', {
                 bubbles: true,
@@ -466,9 +464,6 @@ import './vcf-autosuggest-overlay';
             let opt = this.options.find(x => x.key == value)
             if(!opt) opt = this.optionsForWhenValueIsNull.find(x => x.key == value)
             if(!opt) opt = this._hasDefaultOption() ? this._defaultOption : null
-            console.log("APPLY: ", value)
-            console.log(this.options)
-            console.log(opt)
             optLbl = opt.label;
         }
 

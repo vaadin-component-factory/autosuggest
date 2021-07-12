@@ -190,7 +190,7 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest15.setOpenDropdownOnClick(true);
         autosuggest15.setComponentToDropdownEndSlot(new HorizontalLayout(new Button("Custom!")));
         //autosuggest15.setDefaultOption("key", "Default!", "Default! + uselessSearchStr");
-        autosuggest15.setDefaultOption(null, "Default!", "Default! + uselessSearchStr");
+        autosuggest15.setDefaultOption("", "Default!", "Default! + uselessSearchStr");
         autosuggest15.setSearchMatchingMode(Autosuggest.SearchMatchingMode.CONTAINS);
         col2.add(new Span("Dropdown end slot + default value"), autosuggest15);
 
