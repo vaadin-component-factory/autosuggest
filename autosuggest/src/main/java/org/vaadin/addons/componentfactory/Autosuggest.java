@@ -51,8 +51,9 @@ import java.util.stream.Collectors;
  */
 
 @Tag("vcf-autosuggest")
-@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.9")
-@JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
+@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.10")
+//@JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
+@JsModule("./vcf-autosuggest.js")
 @CssImport(value = "@vaadin-component-factory/vcf-autosuggest/styles/style.css")
 public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTemplateModel>
         implements HasTheme, HasSize, Focusable<Autosuggest>, HasValidation {
@@ -64,6 +65,10 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     public interface AutosuggestTemplateModel extends TemplateModel {
         @AllArgsConstructor
         class FOption {
+            @Getter
+            @Setter
+            String key;
+
             @Getter
             @Setter
             String label;
@@ -86,7 +91,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         Boolean getCaseSensitive();
         String getSearchMatchingMode();
         Boolean getCustomizeOptionsForWhenValueIsNull();
-        String getDefaultValue();
+        FOption getDefaultOption();
         Boolean getDisableSearchHighlighting();
         Boolean getLoading();
         String getCustomItemTemplate();
@@ -103,7 +108,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         void setCaseSensitive(Boolean caseSensitive);
         void setSearchMatchingMode(String smm);
         void setCustomizeOptionsForWhenValueIsNull(Boolean v);
-        void setDefaultValue(String v);
+        void setDefaultOption(FOption option);
         void setDisableSearchHighlighting(Boolean v);
         void setCustomItemTemplate(String tpl);
         void setOpened(Boolean v);
@@ -114,8 +119,8 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         @Setter
         T item;
 
-        public Option(String label, String searchStr,T item) {
-            super(label, searchStr);
+        public Option(String key, String label, String searchStr,T item) {
+            super(key, label, searchStr);
             this.item = item;
         }
     }
@@ -344,7 +349,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setReadOnly(boolean readOnly) {
         getModel().setReadOnly(readOnly);
-        if(showClearButton && getValueLabel() != null && !getValueLabel().isEmpty() && !readOnly) {
+        if(showClearButton && getValueKey() != null && !getValueKey().isEmpty() && !readOnly) {
             clearButton.getElement().getStyle().set("display", "block");
         } else {
             clearButton.getElement().getStyle().set("display", "none");
@@ -380,30 +385,31 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     @Synchronize(property = "selectedValue", value = "vcf-autosuggest-value-applied")
-    public String getValueLabel() {
+    public String getValueKey() {
         return getElement().getProperty("selectedValue", null);
     }
 
     public T getValue() {
-        String lblValue = getElement().getProperty("selectedValue", null);
-        if( this.items != null && this.items.containsKey(lblValue) ) return this.items.get(lblValue).item;
+        String key = getElement().getProperty("selectedValue", null);
+        if( this.items != null && this.items.containsKey(key) ) return this.items.get(key).item;
         return null;
     }
 
-    public void setValueByLabel(String value) {
-        if(!this.items.containsKey(value)) throw new IllegalArgumentException("No item found for label " + value);
+    public void setValueByKey(String value) {
+        if(!this.items.containsKey(value)) throw new IllegalArgumentException("No item found with key " + value);
         getElement().executeJs("this._applyValue(\"" + value + "\");");
+    }
+
+    public void setValueByLabel(String value) {
+        Autosuggest.Option option = this.items.values().stream().filter(item -> item.getLabel().equals(value)).findFirst().orElseThrow(() -> new IllegalArgumentException("No item found with key " + value));
+        getElement().executeJs("this._applyValue(\"" + option.getKey() + "\");");
     }
 
     public void setValue(T item) {
         if(item == null) {
             getElement().executeJs("this._applyValue(null);");
         } else {
-            if(this.labelGenerator != null) {
-                setValueByLabel(this.labelGenerator.generate(item));
-            } else {
-                setValueByLabel(item.toString());
-            }
+            setValueByKey(item.toString());
         }
     }
 
@@ -467,11 +473,15 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     public void clearDefaultOptionValue() {
-        getModel().setDefaultValue("");
+        getModel().setDefaultOption(null); //TODO: TEST
     }
 
-    public void setDefaultOptionValue(String val) {
-        getModel().setDefaultValue(val);
+    public void setDefaultOption(String key, String label, String searchStr) {
+        getModel().setDefaultOption(new AutosuggestTemplateModel.FOption(key, label, searchStr)); //TODO: TEST
+    }
+
+    public void setDefaultOption(String label) {
+        getModel().setDefaultOption(new AutosuggestTemplateModel.FOption(label, label, label)); //TODO: TEST
     }
 
     /**
@@ -498,46 +508,24 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void unsetLabelGenerator() {
         this.labelGenerator = null;
-
-        Map<String, T> generated = new HashMap<>();
-        if(this.items != null) {
-            this.items.values().forEach(item -> generated.put(item.toString(), item.item));
-        }
-        this.setItems(generated);
+        this.setItems(this.items.values().stream().map(Autosuggest.Option::getItem).collect(Collectors.toList()));
     }
 
     public void setLabelGenerator(LabelGenerator<T> lblG) {
         this.labelGenerator = lblG;
-
-        Map<String, T> generated = new HashMap<>();
-        if(this.items != null) {
-            this.items.values().forEach(item -> generated.put(this.labelGenerator.generate(item.item), item.item));
-        }
-        this.setItems(generated);
+        this.setItems(this.items.values().stream().map(Autosuggest.Option::getItem).collect(Collectors.toList()));
     }
 
     public void clearSearchStringGenerator() {
         this.searchStringGenerator = null;
         getModel().setDisableSearchHighlighting(false);
-
-        if(this.items != null) {
-            this.items.keySet().forEach(key -> {
-                Option item = this.items.get(key);
-                item.setSearchStr(item.getLabel());
-                this.items.put(key, item);
-            });
-        }
+        this.setItems(this.items.values().stream().map(Autosuggest.Option::getItem).collect(Collectors.toList()));
     }
 
     public void setSearchStringGenerator(SearchStringGenerator<T> searchStringGenerator) {
         this.searchStringGenerator = searchStringGenerator;
         getModel().setDisableSearchHighlighting(true);
-
-        Map<String, T> generated = new HashMap<>();
-        if(this.items != null) {
-            this.items.values().forEach(item -> generated.put(item.getLabel(), item.getItem()));
-        }
-        this.setItems(generated);
+        this.setItems(this.items.values().stream().map(Autosuggest.Option::getItem).collect(Collectors.toList()));
     }
 
     public void clearItemsForWhenValueIsNull() {
@@ -562,7 +550,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 searchStr = this.searchStringGenerator.generate(item);
             } else searchStr = label;
 
-            this.itemsForWhenValueIsNull.put(label, new Option(label, searchStr, item));
+            this.itemsForWhenValueIsNull.put(label, new Option(item.toString(), label, searchStr, item));
         });
 
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
@@ -586,7 +574,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 searchStr = this.searchStringGenerator.generate(item);
             } else searchStr = label;
 
-            this.itemsForWhenValueIsNull.put(label, new Option(label, searchStr, item));
+            this.itemsForWhenValueIsNull.put(label, new Option(item.toString(), label, searchStr, item));
         });
 
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
@@ -617,7 +605,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 searchStr = this.searchStringGenerator.generate(item);
             } else searchStr = label;
 
-            this.items.put(label, new Option(label, searchStr, item));
+            this.items.put(item.toString(), new Option(item.toString(), label, searchStr, item));
         });
         getModel().setOptions(this.items.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
         getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
@@ -643,7 +631,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 searchStr = this.searchStringGenerator.generate(item);
             } else searchStr = label;
 
-            this.items.put(label, new Option(label, searchStr, item));
+            this.items.put(item.toString(), new Option(item.toString(), label, searchStr, item));
         });
 
         getElement().executeJs("this.clear(true);");
