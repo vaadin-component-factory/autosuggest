@@ -103,6 +103,17 @@ import './vcf-autosuggest-overlay';
                             </vaadin-item>
                         </template>
 
+                        <template is="dom-if" if="[[_showInputLengthBelowMinimumItem]]">
+                            <style>
+                                [part='input-length-below-minimum']::after {
+                                    content: var(--x-input-length-below-minimum-msg);
+                                }
+                            </style>
+                            <vaadin-item disabled part="option" class="input-length-below-minimum">
+                                <div part="input-length-below-minimum"></div>
+                            </vaadin-item>
+                        </template>
+
                         <template is="dom-if" if="[[!loading]]">
                             <template is="dom-repeat" items="[[_optionsToDisplay]]" as="option">
                                 <template is="dom-if" if="[[!customItemTemplate]]">
@@ -155,6 +166,7 @@ import './vcf-autosuggest-overlay';
             _optionsToDisplay: { type: Array, value: () => [] },
             _savedValue: { type: String },
             _showNoResultsItem: { type: Boolean, value: false },
+            _showInputLengthBelowMinimumItem: { type: Boolean, value: false },
            loading: { type: Boolean, value: false },
            customItemTemplate: { type: String, reflectToAttribute: true, value: null },
            noResultsMsg: { type: String, value: 'No results' },
@@ -195,7 +207,7 @@ import './vcf-autosuggest-overlay';
     _loadingChanged(v) {
         this.loading = !v
         this.loading = v //FORCE RE-RENDER
-        this._refreshNoResultsState();
+        this._refreshMessageItemsState();
     }
 
     _defaultOptionChanged(o) {
@@ -295,7 +307,7 @@ import './vcf-autosuggest-overlay';
 
         for(let i=0; i<_res.length; i++) { _res[i].optId = i; }
         this._optionsToDisplay = _res;
-        this._refreshNoResultsState();
+        this._refreshMessageItemsState();
     }
 
 	_hasDefaultOption() {
@@ -377,7 +389,7 @@ import './vcf-autosuggest-overlay';
         this._refreshOptionsToDisplay(this.options, this.inputValue)
         if(this.lazy && event.target.value.trim().length >= this.minimumInputLengthToPerformLazyQuery) this.loading = true;
         if(event.target.value.trim().length > 0) this.opened = true;
-        this._refreshNoResultsState();
+        this._refreshMessageItemsState();
     }
 
     _openedChange(opened) {
@@ -401,11 +413,17 @@ import './vcf-autosuggest-overlay';
         this._overlayElement.updateStyles({ '--vcf-autosuggest-options-width': inputRect.width + 'px' });
     }
 
-    _refreshNoResultsState() {
+    _refreshMessageItemsState() {
         if( !(this.lazy && this.minimumInputLengthToPerformLazyQuery>0) ) {
             this._showNoResultsItem = this._optionsToDisplay.length == 0 && !this.loading;
+            this._showInputLengthBelowMinimumItem = false;
         } else {
             this._showNoResultsItem = this._optionsToDisplay.length == 0 && !this.loading && this.inputValue.length >= this.minimumInputLengthToPerformLazyQuery;
+            if(!this._showNoResultsItem && !this.loading && this._optionsToDisplay.length == 0){
+                this._showInputLengthBelowMinimumItem = true;
+            } else {
+                this._showInputLengthBelowMinimumItem = false;
+            }
         }
     }
 

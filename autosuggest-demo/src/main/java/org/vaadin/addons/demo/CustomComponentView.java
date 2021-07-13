@@ -229,7 +229,7 @@ public class CustomComponentView extends VerticalLayout {
         inputValue18.getElement().getStyle().set("font-size", "12px");
         selectionValue18.getElement().getStyle().set("font-size", "12px");
         Autosuggest<String> autosuggest18 = new Autosuggest<>();
-        autosuggest18.setItems(generateItems());
+        //autosuggest18.setItems(generateItems());
         autosuggest18.setMinimumInputLengthToPerformLazyQuery(3);
         autosuggest18.setLazy(true);
         autosuggest18.setLazyProviderSimple(inputValue -> {

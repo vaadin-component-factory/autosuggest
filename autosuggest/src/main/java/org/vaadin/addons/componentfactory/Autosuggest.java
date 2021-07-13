@@ -238,6 +238,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         textField.getElement().appendChild(inputSuffixContainer.getElement());
 
         overlay.getStyle().set("--x-no-results-msg", "'No results'");
+        overlay.getStyle().set("--x-input-length-below-minimum-msg", "'Please keep typing to trigger search ...'");
     }
 
     @EventHandler
@@ -337,6 +338,10 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setMinimumInputLengthToPerformLazyQuery(Integer minLength) {
         getModel().setMinimumInputLengthToPerformLazyQuery(minLength);
+    }
+
+    public void setInputLengthBelowMinimumMessage(String msg) {
+        overlay.getStyle().set("--x-input-length-below-minimum-msg", "'" + msg + "'");
     }
 
     /**
