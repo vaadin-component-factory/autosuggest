@@ -61,7 +61,6 @@ import './vcf-autosuggest-overlay';
             <div class="container">
                 <vaadin-text-field id="textField" on-focus="_textFieldFocused" label="[[label]]" placeholder="[[placeholder]]" theme$="[[theme]]"> </vaadin-text-field>
                 <vcf-autosuggest-overlay id="autosuggestOverlay" opened="{{opened}}" theme$="[[theme]]">
-
                     <vaadin-list-box id="optionsContainer" part="options-container">
                         <template is="dom-if" if="[[loading]]" restamp="true">
                             <style>
@@ -96,7 +95,7 @@ import './vcf-autosuggest-overlay';
                         <template is="dom-if" if="[[_showNoResultsItem]]">
                             <style>
                                 [part='no-results']::after {
-                                    content: 'No results';
+                                    content: var(--x-no-results-msg);
                                 }
                             </style>
                             <vaadin-item disabled part="option" class="no-results">
@@ -148,7 +147,7 @@ import './vcf-autosuggest-overlay';
             caseSensitive: { type: Boolean, value: false },
             lazy: { type: Boolean, value: false },
             options: { type: Array, value: () => [] },
-            searchMatchingMode: { type: String, value: "STARTS_WITH" },
+            searchMatchingMode: { type: String, value: 'STARTS_WITH' },
             customizeOptionsForWhenValueIsNull: { type: Boolean, value: false },
             optionsForWhenValueIsNull: { type: Array, value: () => [] },
             disableSearchHighlighting: { type: Boolean, value: false },
@@ -158,6 +157,7 @@ import './vcf-autosuggest-overlay';
             _showNoResultsItem: { type: Boolean, value: false },
            loading: { type: Boolean, value: false },
            customItemTemplate: { type: String, reflectToAttribute: true, value: null },
+           noResultsMsg: { type: String, value: 'No results' },
 
            _overlayElement: Object,
            _optionsContainer: Object,
@@ -343,6 +343,17 @@ import './vcf-autosuggest-overlay';
                     this._applyValue(this._optionsToDisplay[(this._hasDefaultOption() ? 1 : 0)].key);
                 } else if( this._hasDefaultOption() && this._optionsToDisplay.length == 1 ) {
                     this._applyValue(this._optionsToDisplay[0].key);
+                }
+
+                if(this.inputValue.length > 0 && this._optionsToDisplay.length==0 && !this.loading) {
+                    this.dispatchEvent(
+                        new CustomEvent('vcf-autosuggest-custom-value-submit', {
+                            bubbles: true,
+                            detail: {
+                                value: this.inputValue
+                            }
+                        })
+                    );
                 }
                 break;
             case 'Escape':

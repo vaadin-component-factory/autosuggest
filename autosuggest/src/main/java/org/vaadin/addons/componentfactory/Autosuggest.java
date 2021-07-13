@@ -232,11 +232,17 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         inputSuffixContainer.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
         inputSuffixContainer.getElement().setAttribute("slot", "suffix");
         textField.getElement().appendChild(inputSuffixContainer.getElement());
+
+        overlay.getStyle().set("--x-no-results-msg", "'No results'");
     }
 
     @EventHandler
     public void clear() {
         fireEvent(new ValueClearEvent(this, true));
+    }
+
+    public void setNoResultsMsg(String msg) {
+        overlay.getStyle().set("--x-no-results-msg", "'" + msg + "'");
     }
 
     public void setInputPrefix(Component... components) {

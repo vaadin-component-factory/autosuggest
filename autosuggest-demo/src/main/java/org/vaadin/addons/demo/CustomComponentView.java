@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.AllArgsConstructor;
@@ -52,6 +53,8 @@ public class CustomComponentView extends VerticalLayout {
     public CustomComponentView() {
         setWidthFull();
 
+        Notification notification = new Notification("", 3000);
+
         FlexLayout first = new FlexLayout(); add(first);
         first.setJustifyContentMode(JustifyContentMode.EVENLY);
 
@@ -82,7 +85,11 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest5.setPlaceholder("Label is up there");
         autosuggest5.setLabel("This is a label: *");
         autosuggest5.setItems(generateItems());
-        col1.add(new Span("Label (position 1) + placeholder"), autosuggest5);
+        autosuggest5.addCustomValueSubmitListener(enterKeyPressEvent -> {
+            notification.setText(enterKeyPressEvent.getValue());
+            notification.open();
+        });
+        col1.add(new Span("Label (position 1) + placeholder + custom value event"), autosuggest5);
 
         Autosuggest<String> autosuggest6 = new Autosuggest<>();
         autosuggest6.setItems(generateItems());
