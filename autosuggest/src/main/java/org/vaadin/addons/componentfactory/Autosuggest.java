@@ -96,6 +96,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         Boolean getLoading();
         String getCustomItemTemplate();
         Boolean getOpened();
+        Integer getMinimumInputLengthToPerformLazyQuery();
         void setLoading(Boolean loading);
         void setOptions(List<FOption> options);
         void setOptionsForWhenValueIsNull(List<FOption> options);
@@ -112,6 +113,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         void setDisableSearchHighlighting(Boolean v);
         void setCustomItemTemplate(String tpl);
         void setOpened(Boolean v);
+        void setMinimumInputLengthToPerformLazyQuery(Integer minL);
     }
 
     class Option extends AutosuggestTemplateModel.FOption {
@@ -193,6 +195,8 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
      */
 
     public Autosuggest(boolean placeClearButtonFirst) {
+        setMinimumInputLengthToPerformLazyQuery(0);
+
         textField.setSizeFull();
         textField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 
@@ -315,7 +319,9 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                     setLoading(false);
                     return;
                 }
-                getEventBus().fireEvent(new AutosuggestLazyDataRequestEvent(this, true, valueChangeEvent.getValue().toString()));
+
+                if(valueChangeEvent.getValue().toString().trim().length() >= getModel().getMinimumInputLengthToPerformLazyQuery())
+                    getEventBus().fireEvent(new AutosuggestLazyDataRequestEvent(this, true, valueChangeEvent.getValue().toString()));
             });
             selectionEvent = addValueAppliedListener(autosuggestValueAppliedEvent -> textField.setValue(autosuggestValueAppliedEvent.getValue()));
         }
@@ -327,6 +333,10 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setSearchMatchingMode(SearchMatchingMode smm) {
         getModel().setSearchMatchingMode(smm.toString());
+    }
+
+    public void setMinimumInputLengthToPerformLazyQuery(Integer minLength) {
+        getModel().setMinimumInputLengthToPerformLazyQuery(minLength);
     }
 
     /**
@@ -459,6 +469,10 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public Registration addEagerInputChangeListener(ComponentEventListener<EagerInputChangeEvent> listener) {
         return addListener(EagerInputChangeEvent.class, listener);
+    }
+
+    public Registration addCustomValueSubmitListener(ComponentEventListener<CustomValueSubmitEvent> listener) {
+        return addListener(CustomValueSubmitEvent.class, listener);
     }
 
     public Registration addInputChangeListener(HasValue.ValueChangeListener listener) {
@@ -741,7 +755,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     /**
-     * ValueChangeEvent is created when the value of the TextField changes.
+     * EagerInputChangeEvent is created when the value of the TextField changes.
      */
     @DomEvent("vcf-autosuggest-input-value-changed")
     public static class EagerInputChangeEvent extends ComponentEvent<Autosuggest> {
@@ -756,9 +770,27 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             return value;
         }
     }
+
+    /**
+     * CustomValueSubmitEvent is created when the enter key is pressed for an option that's not in the list, returning the current value of the TextField
+     */
+    @DomEvent("vcf-autosuggest-custom-value-submit")
+    public static class CustomValueSubmitEvent extends ComponentEvent<Autosuggest> {
+        private final String value;
+
+        public CustomValueSubmitEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
+            super(source, fromClient);
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
     /**
      * AutosuggestValueAppliedEvent is created when the user clicks on a option
-     * of the Autosuggestr.
+     * of the Autosuggest.
      */
     @DomEvent("vcf-autosuggest-value-applied")
     public static class AutosuggestValueAppliedEvent extends ComponentEvent<Autosuggest> {

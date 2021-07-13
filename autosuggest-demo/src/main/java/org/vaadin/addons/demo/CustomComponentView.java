@@ -224,12 +224,13 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest17.getTextField().setWidth("400px");
         col3.add(new Span("Custom text field width"), autosuggest17);
 
-        Span inputValue18 = new Span("Current input (lazy) [kw=lazy,avocado], lambda: ");
+        Span inputValue18 = new Span("Current input (lazy) [kw=lazy,avocado], lambda + minimumLengthForLazyReq=3: ");
         Span selectionValue18 = new Span("Selection: ");
         inputValue18.getElement().getStyle().set("font-size", "12px");
         selectionValue18.getElement().getStyle().set("font-size", "12px");
         Autosuggest<String> autosuggest18 = new Autosuggest<>();
         autosuggest18.setItems(generateItems());
+        autosuggest18.setMinimumInputLengthToPerformLazyQuery(3);
         autosuggest18.setLazy(true);
         autosuggest18.setLazyProviderSimple(inputValue -> {
             try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }

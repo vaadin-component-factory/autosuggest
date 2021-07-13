@@ -158,6 +158,7 @@ import './vcf-autosuggest-overlay';
            loading: { type: Boolean, value: false },
            customItemTemplate: { type: String, reflectToAttribute: true, value: null },
            noResultsMsg: { type: String, value: 'No results' },
+           minimumInputLengthToPerformLazyQuery: { type: Number, value: 0 },
 
            _overlayElement: Object,
            _optionsContainer: Object,
@@ -194,7 +195,7 @@ import './vcf-autosuggest-overlay';
     _loadingChanged(v) {
         this.loading = !v
         this.loading = v //FORCE RE-RENDER
-        this._showNoResultsItem = this._optionsToDisplay.length == 0 && !this.loading;
+        this._refreshNoResultsState();
     }
 
     _defaultOptionChanged(o) {
@@ -294,7 +295,7 @@ import './vcf-autosuggest-overlay';
 
         for(let i=0; i<_res.length; i++) { _res[i].optId = i; }
         this._optionsToDisplay = _res;
-        this._showNoResultsItem = this._optionsToDisplay.length == 0 && !this.loading;
+        this._refreshNoResultsState();
     }
 
 	_hasDefaultOption() {
@@ -374,9 +375,9 @@ import './vcf-autosuggest-overlay';
     _onInput(event) {
         this.inputValue = event.target.value.trim();
         this._refreshOptionsToDisplay(this.options, this.inputValue)
-        if(this.lazy && event.target.value.trim().length>0) this.loading = true;
+        if(this.lazy && event.target.value.trim().length >= this.minimumInputLengthToPerformLazyQuery) this.loading = true;
         if(event.target.value.trim().length > 0) this.opened = true;
-        this._showNoResultsItem = this._optionsToDisplay.length == 0 && !this.loading;
+        this._refreshNoResultsState();
     }
 
     _openedChange(opened) {
@@ -398,6 +399,14 @@ import './vcf-autosuggest-overlay';
         this._overlayElement.style.left = inputRect.left + 'px';
         this._overlayElement.style.top = inputRect.bottom + window.pageYOffset + 'px';
         this._overlayElement.updateStyles({ '--vcf-autosuggest-options-width': inputRect.width + 'px' });
+    }
+
+    _refreshNoResultsState() {
+        if( !(this.lazy && this.minimumInputLengthToPerformLazyQuery>0) ) {
+            this._showNoResultsItem = this._optionsToDisplay.length == 0 && !this.loading;
+        } else {
+            this._showNoResultsItem = this._optionsToDisplay.length == 0 && !this.loading && this.inputValue.length >= this.minimumInputLengthToPerformLazyQuery;
+        }
     }
 
     _getSuggestedStart(value, option) {
