@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Route(value = "")
 @Theme(value = Lumo.class)
-//@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.9")
 public class CustomComponentView extends VerticalLayout {
     @Data
     @AllArgsConstructor
