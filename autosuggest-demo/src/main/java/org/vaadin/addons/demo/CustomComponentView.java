@@ -5,6 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,6 @@ import java.util.stream.Collectors;
 
 @Route(value = "")
 @Theme(value = Lumo.class)
-//@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.9")
 public class CustomComponentView extends VerticalLayout {
     @Data
     @AllArgsConstructor
@@ -51,6 +51,8 @@ public class CustomComponentView extends VerticalLayout {
 
     public CustomComponentView() {
         setWidthFull();
+
+        Notification notification = new Notification("", 3000);
 
         FlexLayout first = new FlexLayout(); add(first);
         first.setJustifyContentMode(JustifyContentMode.EVENLY);
@@ -82,7 +84,11 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest5.setPlaceholder("Label is up there");
         autosuggest5.setLabel("This is a label: *");
         autosuggest5.setItems(generateItems());
-        col1.add(new Span("Label (position 1) + placeholder"), autosuggest5);
+        autosuggest5.addCustomValueSubmitListener(enterKeyPressEvent -> {
+            notification.setText(enterKeyPressEvent.getValue());
+            notification.open();
+        });
+        col1.add(new Span("Label (position 1) + placeholder + custom value event"), autosuggest5);
 
         Autosuggest<String> autosuggest6 = new Autosuggest<>();
         autosuggest6.setItems(generateItems());
@@ -189,7 +195,9 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest15.setItems(generateItems());
         autosuggest15.setOpenDropdownOnClick(true);
         autosuggest15.setComponentToDropdownEndSlot(new HorizontalLayout(new Button("Custom!")));
-        autosuggest15.setDefaultOptionValue("Default!");
+        //autosuggest15.setDefaultOption("key", "Default!", "Default! + uselessSearchStr");
+        autosuggest15.setDefaultOption("", "Default!", "Default! + uselessSearchStr");
+        autosuggest15.setSearchMatchingMode(Autosuggest.SearchMatchingMode.CONTAINS);
         col2.add(new Span("Dropdown end slot + default value"), autosuggest15);
 
         Autosuggest<Fruit> autosuggest23 = new Autosuggest<>();
@@ -197,7 +205,7 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest23.setOpenDropdownOnClick(true);
         autosuggest23.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
         autosuggest23.setSearchStringGenerator(item -> "fwc " + item.getName());
-        autosuggest23.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.label}')\" class=\"aaa\">${option.label} ${option.optId}</button>`;}");
+        autosuggest23.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.key}')\" class=\"aaa\">${option.label} ${option.optId}</button>`;}");
         col2.add(new Span("Objects + template provider + customSearch (fwc xxxxx)"), autosuggest23);
 
         VerticalLayout col3 = new VerticalLayout(); first.add(col3);
@@ -215,12 +223,13 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest17.getTextField().setWidth("400px");
         col3.add(new Span("Custom text field width"), autosuggest17);
 
-        Span inputValue18 = new Span("Current input (lazy) [kw=lazy,avocado], lambda: ");
+        Span inputValue18 = new Span("Current input (lazy) [kw=lazy,avocado], lambda + minimumLengthForLazyReq=3: ");
         Span selectionValue18 = new Span("Selection: ");
         inputValue18.getElement().getStyle().set("font-size", "12px");
         selectionValue18.getElement().getStyle().set("font-size", "12px");
         Autosuggest<String> autosuggest18 = new Autosuggest<>();
-        autosuggest18.setItems(generateItems());
+        //autosuggest18.setItems(generateItems());
+        autosuggest18.setMinimumInputLengthToPerformLazyQuery(3);
         autosuggest18.setLazy(true);
         autosuggest18.setLazyProviderSimple(inputValue -> {
             try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }
@@ -282,19 +291,17 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest24.setItems(generateItemsMap());
         autosuggest24.setOpenDropdownOnClick(true);
         autosuggest24.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        autosuggest24.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.label}')\" class=\"aaa\">${option.label}</button>`;}");
+        autosuggest24.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.key}')\" class=\"aaa\">${option.label}</button>`;}");
         col3.add(new Span("Objects + template provider"), autosuggest24);
 
 
         VerticalLayout second = new VerticalLayout(); add(second);
         second.setWidthFull();
 
-        second.add(new Span("TEST EXAMPLE"));
-
+        second.add(new Span("TEST EXAMPLE 1 [daniel, john, craig, linda]"));
 
         Text iTxt = new Text("");
         Text cpTxt = new Text("");
-
 
         class Person implements Serializable {
             String name;
@@ -338,6 +345,41 @@ public class CustomComponentView extends VerticalLayout {
             Person x = field.getValue();
             cpTxt.setText(x == null ? "" : x.address);
         });
+
+        class PersonH extends Person implements Serializable {
+            @Override
+            public String toString() {
+                return String.format("%d", this.hashCode());
+            }
+
+            PersonH(String n, double h, String a) {
+                super(n, h, a);
+            }
+
+            public String getName() {
+                return this.name;
+            }
+        }
+
+        second.add(new Span("TEST EXAMPLE 2 [john, john, john, john]"));
+        Text cpTxt2 = new Text("");
+        Autosuggest<PersonH> field2 = new Autosuggest<>();
+        field2.setItems(Arrays.asList(new PersonH[]{
+                new PersonH("john", 1.67, "St. John Str"),
+                new PersonH("john", 1.81, "Peace Av."),
+                new PersonH("john", 1.77, "Uphill Rd."),
+                new PersonH("john", 1.74, "Central Av."),
+        }));
+        field2.addValueChangeListener(e -> {
+            Person x = field2.getValue();
+            cpTxt2.setText(x == null ? "" : x.address);
+        });
+        field2.setLabelGenerator(PersonH::getName);
+        field2.setSearchStringGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        field2.setOpenDropdownOnClick(true);
+
+        second.add(new HorizontalLayout(new Label("Selection value (triggered by event, retrieved from component): "), cpTxt2));
+        second.add(field2);
     }
 
 }
