@@ -36,7 +36,6 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
-import lombok.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,19 +62,23 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
      * vcf-autosuggest.html
      */
     public interface AutosuggestTemplateModel extends TemplateModel {
-        @AllArgsConstructor
         class FOption {
-            @Getter
-            @Setter
             String key;
-
-            @Getter
-            @Setter
             String label;
-
-            @Getter
-            @Setter
             String searchStr;
+
+            public FOption(String key, String label, String searchStr) {
+                this.key = key;
+                this.label = label;
+                this.searchStr = searchStr;
+            }
+
+            public String getKey() { return this.key; }
+            public void setKey(String key) { this.key = key; }
+            public String getLabel() { return this.label; }
+            public void setLabel(String label) { this.label = label; }
+            public String getSearchStr() { return this.searchStr; }
+            public void setSearchStr(String searchStr) { this.searchStr = searchStr; }
         }
 
         String getInputValue();
@@ -117,14 +120,15 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     class Option extends AutosuggestTemplateModel.FOption {
-        @Getter
-        @Setter
         T item;
 
         public Option(String key, String label, String searchStr,T item) {
             super(key, label, searchStr);
             this.item = item;
         }
+
+        public T getItem() { return this.item; }
+        public void setItem(T item) { this.item = item; }
     }
 
     public interface LazyProviderFunction<T> {}
@@ -145,18 +149,18 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         String generate(T obj);
     }
 
-    @Setter
     private boolean showClearButton = true;
+    public void setShowClearButton(Boolean v) { this.showClearButton = v; }
 
-    @Getter
     private Map<String, Option> items = new HashMap<>();
+    public Map<String, Option> getItems() { return this.items; }
 
-    @Getter
     private Map<String, Option> itemsForWhenValueIsNull = new HashMap<>();
+    public Map<String, Option> getItemsForWhenValueIsNull() { return this.itemsForWhenValueIsNull; }
 
     @Id
-    @Getter
     private TextField textField;
+    public TextField getTextField() { return this.textField; }
 
     private LabelGenerator<T> labelGenerator = null;
     private SearchStringGenerator<T> searchStringGenerator = null;
@@ -502,15 +506,15 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     public void clearDefaultOptionValue() {
-        getModel().setDefaultOption(null); //TODO: TEST
+        getModel().setDefaultOption(null);
     }
 
     public void setDefaultOption(String key, String label, String searchStr) {
-        getModel().setDefaultOption(new AutosuggestTemplateModel.FOption(key, label, searchStr)); //TODO: TEST
+        getModel().setDefaultOption(new AutosuggestTemplateModel.FOption(key, label, searchStr));
     }
 
     public void setDefaultOption(String label) {
-        getModel().setDefaultOption(new AutosuggestTemplateModel.FOption(label, label, label)); //TODO: TEST
+        getModel().setDefaultOption(new AutosuggestTemplateModel.FOption(label, label, label));
     }
 
     /**
