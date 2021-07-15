@@ -1,3 +1,11 @@
+/* TODO:
+    1. Some _applyValue() calls are passed the label, others the key . The key should be the thing to pass.
+    2. Add the label to the event vcf-autosuggest-value-applied so that it will be available within java context
+    3. use it to fix github point #1 (java)
+    4. KeyGenerator (java)
+    5. LabelGenerator (java)
+*/
+
 /*
  * Copyright 2000-2021 Vaadin Ltd.
  *
@@ -228,7 +236,7 @@ import './vcf-autosuggest-overlay';
 
     _outsideClickHandler() {
         if(!this.opened) return;
-        this._applyValue(this.selectedValue == null ? (this._hasDefaultOption() ? this._defaultOption.label : '') : this.selectedValue);
+        this._applyValue(this.selectedValue == null ? (this._hasDefaultOption() ? this._defaultOption.key : '') : this.selectedValue);
         this.opened = false;
     }
 
@@ -370,7 +378,7 @@ import './vcf-autosuggest-overlay';
                 }
                 break;
             case 'Escape':
-                this._applyValue(this.selectedValue == null ? (this._hasDefaultOption() ? this._defaultOption.label : '') : this.selectedValue);
+                this._applyValue(this.selectedValue == null ? (this._hasDefaultOption() ? this._defaultOption.key : '') : this.selectedValue);
                 this.$.textField.blur();
                 this.opened = false;
                 break;
@@ -480,22 +488,14 @@ import './vcf-autosuggest-overlay';
             this._selectedOption = items[nextIndex];
             return this._selectedOption.value;
         } else { // or restore the saved value
-            this._applyValue(this._savedValue);
+            //this._applyValue(this._savedValue); TODO: this is not needed, is it ? If so, the key must be saved as well because applyValue must be passed the key, not the label.
             return this._savedValue;
         }
     }
 
     _applyValue(value, keepDropdownOpened=false) {
-        if(value == null && this._hasDefaultOption()) value = this._defaultOption.label;
-        this.selectedValue = (value == this._defaultOption.label ? null : value);
-        this.dispatchEvent(
-            new CustomEvent('vcf-autosuggest-value-applied', {
-                bubbles: true,
-                detail: {
-                    value: value
-                }
-            })
-        );
+        if(value == null && this._hasDefaultOption()) value = this._defaultOption.key;
+        this.selectedValue = (value == this._defaultOption.key ? null : value);
 
         let optLbl = "";
         if(value.length > 0) {
@@ -504,6 +504,16 @@ import './vcf-autosuggest-overlay';
             if(!opt) opt = this._hasDefaultOption() ? this._defaultOption : null
             optLbl = opt.label;
         }
+
+        this.dispatchEvent(
+            new CustomEvent('vcf-autosuggest-value-applied', {
+                bubbles: true,
+                detail: {
+                    label: optLbl,
+                    value: value
+                }
+            })
+        );
 
         if(!keepDropdownOpened) {
             this._changeTextFieldValue(optLbl);
@@ -516,7 +526,7 @@ import './vcf-autosuggest-overlay';
     }
 
     clear(keepDropdownOpened=false) {
-        if(!keepDropdownOpened) this._applyValue(this._hasDefaultOption() ? this._defaultOption.label : '', true);
+        if(!keepDropdownOpened) this._applyValue(this._hasDefaultOption() ? this._defaultOption.key : '', true);
         this.$.textField.focus();
         if(!keepDropdownOpened) {
             this.opened = false;

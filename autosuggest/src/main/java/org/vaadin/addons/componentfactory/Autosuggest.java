@@ -51,8 +51,8 @@ import java.util.stream.Collectors;
 
 @Tag("vcf-autosuggest")
 @NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.0.11")
-@JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
-//@JsModule("./vcf-autosuggest.js")
+//@JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
+@JsModule("./vcf-autosuggest.js")
 @CssImport(value = "@vaadin-component-factory/vcf-autosuggest/styles/style.css")
 public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTemplateModel>
         implements HasTheme, HasSize, Focusable<Autosuggest>, HasValidation {
@@ -328,7 +328,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 if(valueChangeEvent.getValue().toString().trim().length() >= getModel().getMinimumInputLengthToPerformLazyQuery())
                     getEventBus().fireEvent(new AutosuggestLazyDataRequestEvent(this, true, valueChangeEvent.getValue().toString()));
             });
-            selectionEvent = addValueAppliedListener(autosuggestValueAppliedEvent -> textField.setValue(autosuggestValueAppliedEvent.getValue()));
+            selectionEvent = addValueAppliedListener(autosuggestValueAppliedEvent -> textField.setValue(autosuggestValueAppliedEvent.getLabel()));
         }
     }
 
@@ -804,16 +804,21 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     @DomEvent("vcf-autosuggest-value-applied")
     public static class AutosuggestValueAppliedEvent extends ComponentEvent<Autosuggest> {
 
+        private final String label;
         private final String value;
 
-        public AutosuggestValueAppliedEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
+        public AutosuggestValueAppliedEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value, @EventData("event.detail.label") String label) {
             super(source, fromClient);
             this.value = value;
             this.source = source;
+            this.label = label;
         }
 
         public String getValue() {
             return value;
+        }
+        public String getLabel() {
+            return label;
         }
     }
 
