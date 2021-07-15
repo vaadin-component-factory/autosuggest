@@ -141,6 +141,10 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         Map<String, T> refresh(String searchQ);
     }
 
+    public interface KeyGenerator<T> {
+        String generate(T obj);
+    }
+
     public interface LabelGenerator<T> {
         String generate(T obj);
     }
@@ -162,6 +166,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     private TextField textField;
     public TextField getTextField() { return this.textField; }
 
+    private KeyGenerator<T> keyGenerator = null;
     private LabelGenerator<T> labelGenerator = null;
     private SearchStringGenerator<T> searchStringGenerator = null;
 
@@ -539,13 +544,23 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         lazyDataRequestEventH = addLazyDataRequestListener(event -> setItems(ff.refresh(getModel().getInputValue())));
     }
 
-    public void unsetLabelGenerator() {
-        this.labelGenerator = null;
+    public void setKeyGenerator(KeyGenerator<T> keyG) {
+        this.keyGenerator = keyG;
+        this.setItems(this.items.values().stream().map(Autosuggest.Option::getItem).collect(Collectors.toList()));
+    }
+
+    public void unsetKeyGenerator() {
+        this.keyGenerator = null;
         this.setItems(this.items.values().stream().map(Autosuggest.Option::getItem).collect(Collectors.toList()));
     }
 
     public void setLabelGenerator(LabelGenerator<T> lblG) {
         this.labelGenerator = lblG;
+        this.setItems(this.items.values().stream().map(Autosuggest.Option::getItem).collect(Collectors.toList()));
+    }
+
+    public void unsetLabelGenerator() {
+        this.labelGenerator = null;
         this.setItems(this.items.values().stream().map(Autosuggest.Option::getItem).collect(Collectors.toList()));
     }
 
@@ -570,6 +585,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     public void setItemsForWhenValueIsNull(Collection<T> items) {
         this.itemsForWhenValueIsNull.clear();
         items.forEach(item -> {
+            String key;
             String label;
             String searchStr;
 
@@ -579,11 +595,17 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 label = item.toString();
             }
 
+            if(this.keyGenerator != null) {
+                key = this.keyGenerator.generate(item);
+            } else {
+                key = item.toString();
+            }
+
             if(this.searchStringGenerator != null) {
                 searchStr = this.searchStringGenerator.generate(item);
             } else searchStr = label;
 
-            this.itemsForWhenValueIsNull.put(label, new Option(item.toString(), label, searchStr, item));
+            this.itemsForWhenValueIsNull.put(key, new Option(key, label, searchStr, item));
         });
 
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
@@ -607,7 +629,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 searchStr = this.searchStringGenerator.generate(item);
             } else searchStr = label;
 
-            this.itemsForWhenValueIsNull.put(label, new Option(item.toString(), label, searchStr, item));
+            this.itemsForWhenValueIsNull.put(key, new Option(key, label, searchStr, item));
         });
 
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
@@ -625,6 +647,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     public void setItems(Collection<T> items) {
         this.items.clear();
         items.forEach(item -> {
+            String key;
             String label;
             String searchStr;
 
@@ -634,11 +657,17 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 label = item.toString();
             }
 
+            if(this.keyGenerator != null) {
+                key = this.keyGenerator.generate(item);
+            } else {
+                key = item.toString();
+            }
+
             if(this.searchStringGenerator != null) {
                 searchStr = this.searchStringGenerator.generate(item);
             } else searchStr = label;
 
-            this.items.put(item.toString(), new Option(item.toString(), label, searchStr, item));
+            this.items.put(item.toString(), new Option(key, label, searchStr, item));
         });
         getModel().setOptions(this.items.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
         getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
@@ -664,7 +693,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                 searchStr = this.searchStringGenerator.generate(item);
             } else searchStr = label;
 
-            this.items.put(item.toString(), new Option(item.toString(), label, searchStr, item));
+            this.items.put(item.toString(), new Option(key, label, searchStr, item));
         });
 
         getElement().executeJs("this.clear(true);");
@@ -786,15 +815,16 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     @DomEvent("vcf-autosuggest-custom-value-submit")
     public static class CustomValueSubmitEvent extends ComponentEvent<Autosuggest> {
         private final String value;
+        private final Integer numberOfAvailableOptions;
 
-        public CustomValueSubmitEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
+        public CustomValueSubmitEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value, @EventData("event.detail.numberOfAvailableOptions") Integer numberOfAvailableOptions) {
             super(source, fromClient);
             this.value = value;
+            this.numberOfAvailableOptions = numberOfAvailableOptions;
         }
 
-        public String getValue() {
-            return value;
-        }
+        public String getValue() { return value; }
+        public Integer getNumberOfAvailableOptions() { return numberOfAvailableOptions; }
     }
 
     /**

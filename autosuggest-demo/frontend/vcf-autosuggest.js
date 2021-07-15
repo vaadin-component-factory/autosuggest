@@ -366,11 +366,12 @@ import './vcf-autosuggest-overlay';
                     this._applyValue(this._optionsToDisplay[0].key);
                 }
 
-                if(this.inputValue.length > 0 && this._optionsToDisplay.length==0 && !this.loading) {
+                if(this.inputValue.length > 0 && !this.loading) {
                     this.dispatchEvent(
                         new CustomEvent('vcf-autosuggest-custom-value-submit', {
                             bubbles: true,
                             detail: {
+                                numberOfAvailableOptions: this._optionsToDisplay.length,
                                 value: this.inputValue
                             }
                         })

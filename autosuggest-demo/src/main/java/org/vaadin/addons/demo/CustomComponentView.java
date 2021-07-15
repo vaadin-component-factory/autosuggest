@@ -85,8 +85,10 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest5.setLabel("This is a label: *");
         autosuggest5.setItems(generateItems());
         autosuggest5.addCustomValueSubmitListener(enterKeyPressEvent -> {
-            notification.setText(enterKeyPressEvent.getValue());
-            notification.open();
+            if(enterKeyPressEvent.getNumberOfAvailableOptions() != 1) {
+                notification.setText(enterKeyPressEvent.getValue());
+                notification.open();
+            }
         });
         col1.add(new Span("Label (position 1) + placeholder + custom value event"), autosuggest5);
 
