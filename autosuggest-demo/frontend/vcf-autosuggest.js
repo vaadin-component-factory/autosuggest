@@ -1,11 +1,3 @@
-/* TODO:
-    1. Some _applyValue() calls are passed the label, others the key . The key should be the thing to pass.
-    2. Add the label to the event vcf-autosuggest-value-applied so that it will be available within java context
-    3. use it to fix github point #1 (java)
-    4. KeyGenerator (java)
-    5. LabelGenerator (java)
-*/
-
 /*
  * Copyright 2000-2021 Vaadin Ltd.
  *
@@ -394,10 +386,14 @@ import './vcf-autosuggest-overlay';
     }
 
     _onInput(event) {
-        this.inputValue = event.target.value.trim();
+        if(event.target != null && event.target.value != null) {
+            this.inputValue = event.target.value.trim();
+        } else {
+            this.inputValue = '';
+        }
         this._refreshOptionsToDisplay(this.options, this.inputValue)
-        if(this.lazy && event.target.value.trim().length >= this.minimumInputLengthToPerformLazyQuery) this.loading = true;
-        if(event.target.value.trim().length > 0) this.opened = true;
+        if(this.lazy && this.inputValue.length >= this.minimumInputLengthToPerformLazyQuery) this.loading = true;
+        if(this.inputValue.length > 0) this.opened = true;
         this._refreshMessageItemsState();
     }
 
@@ -499,13 +495,10 @@ import './vcf-autosuggest-overlay';
         this.selectedValue = (value == this._defaultOption.key ? null : value);
 
         let optLbl = "";
-        if(value.length > 0) {
-            let opt = this.options.find(x => x.key == value)
-            if(!opt) opt = this.optionsForWhenValueIsNull.find(x => x.key == value)
-            if(!opt) opt = this._hasDefaultOption() ? this._defaultOption : null
-            optLbl = opt.label;
-        }
-
+        let opt = this.options.find(x => x.key == value)
+        if(!opt) opt = this.optionsForWhenValueIsNull.find(x => x.key == value)
+        if(!opt) opt = this._hasDefaultOption() ? this._defaultOption : null
+        optLbl = opt!=null ? opt.label : '';
         this.dispatchEvent(
             new CustomEvent('vcf-autosuggest-value-applied', {
                 bubbles: true,
@@ -515,7 +508,6 @@ import './vcf-autosuggest-overlay';
                 }
             })
         );
-
         if(!keepDropdownOpened) {
             this._changeTextFieldValue(optLbl);
             this.opened = false;
