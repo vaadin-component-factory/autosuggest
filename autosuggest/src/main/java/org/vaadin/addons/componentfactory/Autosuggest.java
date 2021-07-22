@@ -661,7 +661,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     public void setItems(Collection<T> items) {
-        this.items.clear();
+        clearItems();
         items.forEach(item -> {
             String label = getLabel(item);
             String key = getKey(item);
@@ -671,13 +671,12 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         });
         getModel().setOptions(this.items.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
         getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
-        getElement().executeJs("this.clear(true);");
         setLoading(false);
         getElement().executeJs("this._loadingChanged(false)");
     }
 
     public void setItems(Map<String, T> items) {
-        this.items.clear();
+        clearItems();
         items.keySet().forEach(key -> {
             T item = items.get(key);
             String label = getLabel(item);
@@ -686,10 +685,15 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
             this.items.put(key, new Option(key, label, searchStr, item));
         });
 
-        getElement().executeJs("this.clear(true);");
         getModel().setOptions(this.items.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
+        getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
         setLoading(false);
         getElement().executeJs("this._loadingChanged(false)");
+    }
+
+    private void clearItems() {
+        this.items.clear();
+        getElement().executeJs("this.clear(true);");
     }
 
     /**
