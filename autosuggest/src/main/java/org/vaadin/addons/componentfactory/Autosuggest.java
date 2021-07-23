@@ -1,4 +1,4 @@
-package org.vaadin.addons.componentfactory;
+package it.prodata.grid.web;
 
 /*
  * #%L
@@ -349,11 +349,15 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         getModel().setSearchMatchingMode(smm.toString());
     }
 
+    public Integer getMinimumInputLengthToPerformLazyQuery() {
+        return getModel().getMinimumInputLengthToPerformLazyQuery();
+    }
+
     public void setMinimumInputLengthToPerformLazyQuery(Integer minLength) {
         getModel().setMinimumInputLengthToPerformLazyQuery(minLength);
     }
 
-    public void setInputLengthBelowMinimumMessage(String msg) {
+    public void setInputLengthBelowMinimumMsg(String msg) {
         overlay.getStyle().set("--x-input-length-below-minimum-msg", "'" + msg + "'");
     }
 
@@ -435,12 +439,18 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setValueByKey(String value) {
         if(!this.items.containsKey(value)) throw new IllegalArgumentException("No item found with key " + value);
-        getElement().executeJs("this._applyValue(\"" + value + "\");");
+        Element element = getElement();
+        element.getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, context -> {
+            element.executeJs("setTimeout(function() { $0._applyValue(\"" + value + "\"); }, 0);", element);
+        }));
     }
 
     public void setValueByLabel(String label) {
         Option option = getItemForLabel(label).orElseThrow(() -> new IllegalArgumentException("No item found with key " + label));
-        getElement().executeJs("this._applyValue(\"" + option.getKey() + "\");");
+        Element element = getElement();
+        element.getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, context -> {
+            element.executeJs("setTimeout(function() { $0._applyValue(\"" + option.getKey() + "\"); }, 0);", element);
+        }));
     }
 
     public void setValue(T item) {
