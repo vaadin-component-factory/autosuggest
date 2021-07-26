@@ -397,7 +397,6 @@ import './vcf-autosuggest-overlay';
                     );
                 }
                 break;
-            case 'Tab':
             case 'Esc':
             case 'Escape':
                 this._applyValue(this.selectedValue == null ? (this._hasDefaultOption() ? this._defaultOption.key : '') : this.selectedValue);
