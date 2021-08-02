@@ -34,6 +34,8 @@ import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Element;
+import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.dom.ThemeList;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.templatemodel.TemplateModel;
 
@@ -187,8 +189,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     /**
      * Constructor that sets the maximum number of displayed options.
      *
-     * @param limit
-     *            maximum number of displayed options
+     * @param limit maximum number of displayed options
      */
     public Autosuggest(int limit) {
         this();
@@ -202,7 +203,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     /**
      * Default constructor.
      */
-
     public Autosuggest(boolean placeClearButtonFirst) {
         setMinimumInputLengthToPerformLazyQuery(0);
 
@@ -210,24 +210,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         textField.setValueChangeMode(ValueChangeMode.ON_CHANGE);
 
         // Init clear button
-        Icon clearIcon = new Icon("lumo:cross");
-        clearIcon.getElement().getStyle().set("color", "var(--lumo-contrast-70pct)");
-        clearButton = new Button(clearIcon, buttonClickEvent -> getElement().executeJs("this.clear()"));
-        clearButton.getElement().getThemeList().add("icon");
-        clearButton.getElement().getThemeList().add("tertiary");
-        clearButton.getElement().getThemeList().add("small");
-        clearButton.getElement().setAttribute("aria-label", "");
-        clearButton.getElement().getStyle().set("display", "none");
-        clearButton.getElement().getStyle().set("font-size", "var(--lumo-icon-size-m)");
-        clearButton.getElement().getStyle().set("padding", "0");
-        clearButton.setId("button-clear");
-        addValueChangeListener(valueChangeEvent -> {
-            if(showClearButton && valueChangeEvent.value != null && !valueChangeEvent.value.isEmpty() && !isReadOnly()) {
-                clearButton.getElement().getStyle().set("display", "block");
-            } else {
-                clearButton.getElement().getStyle().set("display", "none");
-            }
-        });
+        initClearButton();
 
         // Init input prefix
         inputPrefix = new FlexLayout();
@@ -248,6 +231,30 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
         overlay.getStyle().set("--x-no-results-msg", "'No results'");
         overlay.getStyle().set("--x-input-length-below-minimum-msg", "'Please keep typing to trigger search ...'");
+    }
+
+    /** Init clear button */
+    private void initClearButton() {
+        Icon clearIcon = new Icon("lumo:cross");
+        clearIcon.getElement().getStyle().set("color", "var(--lumo-contrast-70pct)");
+        clearButton = new Button(clearIcon, buttonClickEvent -> getElement().executeJs("this.clear()"));
+        ThemeList themeList = clearButton.getElement().getThemeList();
+        themeList.add("icon");
+        themeList.add("tertiary");
+        themeList.add("small");
+        Style style = clearButton.getElement().getStyle();
+        style.set("display", "none");
+        style.set("font-size", "var(--lumo-icon-size-m)");
+        style.set("padding", "0");
+        clearButton.getElement().setAttribute("aria-label", "");
+        clearButton.setId("button-clear");
+        addValueChangeListener(valueChangeEvent -> {
+            if(showClearButton && valueChangeEvent.value != null && !valueChangeEvent.value.isEmpty() && !isReadOnly()) {
+                style.set("display", "block");
+            } else {
+                style.set("display", "none");
+            }
+        });
     }
 
     @EventHandler
@@ -320,7 +327,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
                     if (valueChangeEvent.getValue() == null || valueChangeEvent.getValue().toString().isEmpty())
                         getElement().executeJs("this.clear();");
                     setLoading(false);
-                    getElement().executeJs("this._loadingChanged(false)");
                     return;
                 }
 
@@ -414,8 +420,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
      * <p>
      * The limit should be bigger than 0.
      *
-     * @param limit
-     *            maximum number of displayed options
+     * @param limit maximum number of displayed options
      */
     public void setLimit(int limit) {
         getModel().setLimit(limit);
@@ -439,18 +444,12 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setValueByKey(String value) {
         if(!this.items.containsKey(value)) throw new IllegalArgumentException("No item found with key " + value);
-        Element element = getElement();
-        element.getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, context -> {
-            element.executeJs("setTimeout(function() { $0._applyValue(\"" + value + "\"); }, 0);", element);
-        }));
+        applyValue(value);
     }
 
     public void setValueByLabel(String label) {
         Option option = getItemForLabel(label).orElseThrow(() -> new IllegalArgumentException("No item found with key " + label));
-        Element element = getElement();
-        element.getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, context -> {
-            element.executeJs("setTimeout(function() { $0._applyValue(\"" + option.getKey() + "\"); }, 0);", element);
-        }));
+        applyValue(option.getKey());
     }
 
     public void setValue(T item) {
@@ -465,38 +464,27 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         return this.items.containsKey(getKey(item));
     }
 
+    private void applyValue(String value) {
+        Element element = getElement();
+        element.getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, context -> {
+            element.executeJs("setTimeout(function() { $0._applyValue(\"" + value + "\"); }, 0);", element);
+        }));
+    }
+
     private Optional<Option> getItemForLabel(String label) {
         return this.items.values().stream().filter(item -> item.getLabel().equals(label)).findFirst();
     }
 
     private String getKey(T item) {
-        String key;
-        if(this.keyGenerator != null) {
-            key = this.keyGenerator.generate(item);
-        } else {
-            key = item.toString();
-        }
-        return key;
+        return keyGenerator != null ? keyGenerator.generate(item) : item.toString();
     }
 
     private String getLabel(T item) {
-        String label;
-        if(this.labelGenerator != null) {
-            label = this.labelGenerator.generate(item);
-        } else {
-            label = item.toString();
-        }
-        return label;
+        return labelGenerator != null ? labelGenerator.generate(item) : item.toString();
     }
 
     private String getSearchStr(T item, String defValue) {
-        String searchStr;
-        if(this.searchStringGenerator != null) {
-            searchStr = this.searchStringGenerator.generate(item);
-        } else {
-            searchStr = defValue;
-        }
-        return searchStr;
+        return searchStringGenerator != null ? searchStringGenerator.generate(item) : defValue;
     }
 
     /**
@@ -682,7 +670,6 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         getModel().setOptions(this.items.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
         getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
         setLoading(false);
-        getElement().executeJs("this._loadingChanged(false)");
     }
 
     public void setItems(Map<String, T> items) {
@@ -698,12 +685,10 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
         getModel().setOptions(this.items.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
         getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
         setLoading(false);
-        getElement().executeJs("this._loadingChanged(false)");
     }
 
     private void clearItems() {
         this.items.clear();
-        getElement().executeJs("this.clear(true);");
     }
 
     /**
