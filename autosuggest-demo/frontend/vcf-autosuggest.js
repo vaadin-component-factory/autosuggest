@@ -152,7 +152,7 @@ import './vcf-autosuggest-overlay';
                                             padding-right: 0.5em;
                                         }
                                     </style>
-                                    <div id="autosuggestOverlayItem{{option.optId}}" part="option" data-tag="autosuggestOverlayItem" data-oid="{{option.optId}}" data-key="{{option.key}}"></div>
+                                    <vaadin-item on-click="_optionClicked" part="option" data-tag="autosuggestOverlayItem" data-oid="{{option.optId}}" data-key="{{option.key}}"></vaadin-item>
                                 </template>
                             </template>
                         </template>
