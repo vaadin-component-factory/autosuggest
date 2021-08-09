@@ -71,7 +71,7 @@ import java.util.stream.Collectors;
  */
 
 @Tag("vcf-autosuggest")
-@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.1.0")
+@NpmPackage(value = "@vaadin-component-factory/vcf-autosuggest", version = "1.1.1")
 @JsModule("@vaadin-component-factory/vcf-autosuggest/src/vcf-autosuggest.js")
 //@JsModule("./vcf-autosuggest.js")
 @CssImport(value = "@vaadin-component-factory/vcf-autosuggest/styles/style.css")
