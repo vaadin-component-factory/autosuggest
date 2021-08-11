@@ -152,7 +152,7 @@ import './vcf-autosuggest-overlay';
                                             padding-right: 0.5em;
                                         }
                                     </style>
-                                    <div id="autosuggestOverlayItem{{option.optId}}" part="option" data-tag="autosuggestOverlayItem" data-oid="{{option.optId}}" data-key="{{option.key}}"></div>
+                                    <vaadin-item on-click="_optionClicked" part="option" data-oid="{{option.optId}}" data-key="{{option.key}}" data-tag="autosuggestOverlayItem"></vaadin-item>
                                 </template>
                             </template>
                         </template>
@@ -278,7 +278,6 @@ import './vcf-autosuggest-overlay';
         this._overlayElement.addEventListener('vaadin-overlay-outside-click', ev => ev.preventDefault());
         this._dropdownEndSlot = this.$.dropdownEndSlot;
         this._dropdownEndSlot.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); });
-        this._overlayElement.addEventListener('click', ev => { if(this.customItemTemplate) { ev.preventDefault(); ev.stopPropagation(); }});
     }
 
     disconnectedCallback() {
@@ -317,7 +316,7 @@ import './vcf-autosuggest-overlay';
         let _res = [];
         if(this.customizeOptionsForWhenValueIsNull && (value == null || value.length == 0 || value.trim() == (this._hasDefaultOption() ? this._defaultOption.label : '').trim()))
             _res = _res.concat(this._limitOptions(this.optionsForWhenValueIsNull));
-        else _res = _res.concat(this._limitOptions(this._filterOptions(options, value))); //TODO: ADD THE DEFAULT ONE (MERGE)
+        else _res = _res.concat(this._limitOptions(this._filterOptions(options, value)));
         if(!_res || _res==null) _res = [];
 
         // Criteria for showing the default option:

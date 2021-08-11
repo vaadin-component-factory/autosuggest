@@ -466,9 +466,9 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     private void applyValue(String value) {
         Element element = getElement();
-        element.getNode().runWhenAttached(ui -> ui.beforeClientResponse(this, context -> {
-            element.executeJs("setTimeout(function() { $0._applyValue(\"" + value + "\"); }, 0);", element);
-        }));
+        element.getNode().runWhenAttached(ui -> ui.beforeClientResponse(this,
+                context -> element.executeJs("setTimeout(function() { $0._applyValue(\"" + value + "\"); }, 0);", element))
+        );
     }
 
     private Optional<Option> getItemForLabel(String label) {
@@ -586,34 +586,34 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setKeyGenerator(KeyGenerator<T> keyG) {
         this.keyGenerator = keyG;
-        this.setItems(this.items.values().stream().map(Option::getItem).collect(Collectors.toList()));
+        this.setItems();
     }
 
     public void unsetKeyGenerator() {
         this.keyGenerator = null;
-        this.setItems(this.items.values().stream().map(Option::getItem).collect(Collectors.toList()));
+        this.setItems();
     }
 
     public void setLabelGenerator(LabelGenerator<T> lblG) {
         this.labelGenerator = lblG;
-        this.setItems(this.items.values().stream().map(Option::getItem).collect(Collectors.toList()));
+        this.setItems();
     }
 
     public void unsetLabelGenerator() {
         this.labelGenerator = null;
-        this.setItems(this.items.values().stream().map(Option::getItem).collect(Collectors.toList()));
+        this.setItems();
     }
 
     public void clearSearchStringGenerator() {
         this.searchStringGenerator = null;
         getModel().setDisableSearchHighlighting(false);
-        this.setItems(this.items.values().stream().map(Option::getItem).collect(Collectors.toList()));
+        this.setItems();
     }
 
     public void setSearchStringGenerator(SearchStringGenerator<T> searchStringGenerator) {
         this.searchStringGenerator = searchStringGenerator;
         getModel().setDisableSearchHighlighting(true);
-        this.setItems(this.items.values().stream().map(Option::getItem).collect(Collectors.toList()));
+        this.setItems();
     }
 
     public void clearItemsForWhenValueIsNull() {
@@ -624,71 +624,65 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setItemsForWhenValueIsNull(Collection<T> items) {
         this.itemsForWhenValueIsNull.clear();
-        items.forEach(item -> {
-            String label = getLabel(item);
-            String key = getKey(item);
-            String searchStr = getSearchStr(item, label);
-
-            this.itemsForWhenValueIsNull.put(key, new Option(key, label, searchStr, item));
-        });
+        this.itemsForWhenValueIsNull.putAll(items.stream().collect(Collectors.toMap(this::getKey, this::getOption)));
 
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
-        getModel().setOptionsForWhenValueIsNull(this.itemsForWhenValueIsNull.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
+        getModel().setOptionsForWhenValueIsNull(new ArrayList<>(this.itemsForWhenValueIsNull.values()));
     }
 
     public void setItemsForWhenValueIsNull(Map<String, T> items) {
         this.itemsForWhenValueIsNull.clear();
-        items.keySet().forEach(key -> {
-            T item = items.get(key);
-            String label = getLabel(item);
-            String searchStr = getSearchStr(item, label);
-
-            this.itemsForWhenValueIsNull.put(key, new Option(key, label, searchStr, item));
-        });
+        this.items.putAll(
+                items.keySet().stream().collect(Collectors.toMap(key -> key, key -> getOption(items.get(key))))
+        );
 
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
-        getModel().setOptionsForWhenValueIsNull(this.itemsForWhenValueIsNull.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
+        getModel().setOptionsForWhenValueIsNull(new ArrayList<>(this.itemsForWhenValueIsNull.values()));
     }
 
-    public void clearTemplateProvider() {
+    public void clearOptionTemplate() {
         getModel().setCustomItemTemplate(null);
     }
 
-    public void setTemplateProvider(String template) {
-        getModel().setCustomItemTemplate(template);
+    public void setOptionTemplate(String template) { //Available to replace: ${domItem}, ${option}
+        String generator = "function(option, domItem) { " +
+            "return `" + template + "`;" +
+        "}";
+
+        getModel().setCustomItemTemplate(generator);
+    }
+
+    private void setItems() {
+        this.setItems(this.items.values().stream().map(Option::getItem).collect(Collectors.toList()));
     }
 
     public void setItems(Collection<T> items) {
         clearItems();
-        items.forEach(item -> {
-            String label = getLabel(item);
-            String key = getKey(item);
-            String searchStr = getSearchStr(item, label);
-
-            this.items.put(key, new Option(key, label, searchStr, item));
-        });
-        getModel().setOptions(this.items.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
+        this.items.putAll(items.stream().collect(Collectors.toMap(this::getKey, this::getOption)));
+        getModel().setOptions(new ArrayList<>(this.items.values()));
         getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
         setLoading(false);
     }
 
     public void setItems(Map<String, T> items) {
         clearItems();
-        items.keySet().forEach(key -> {
-            T item = items.get(key);
-            String label = getLabel(item);
-            String searchStr = getSearchStr(item, label);
-
-            this.items.put(key, new Option(key, label, searchStr, item));
-        });
-
-        getModel().setOptions(this.items.values().stream().map(AutosuggestTemplateModel.FOption.class::cast).collect(Collectors.toList()));
-        getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
+        this.items.putAll(
+                items.keySet().stream().collect(Collectors.toMap(key -> key, key -> getOption(items.get(key))))
+        );
+        getModel().setOptions(new ArrayList<>(this.items.values()));        getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
         setLoading(false);
     }
 
     private void clearItems() {
         this.items.clear();
+    }
+
+    private Option getOption(T item) {
+        String key = getKey(item);
+        String label = getLabel(item);
+        String searchStr = getSearchStr(item, label);
+
+        return new Option(key, label, searchStr, item);
     }
 
     /**

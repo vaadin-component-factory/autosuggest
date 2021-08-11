@@ -2,7 +2,6 @@ package org.vaadin.addons.demo;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
@@ -207,7 +206,7 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest23.setOpenDropdownOnClick(true);
         autosuggest23.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
         autosuggest23.setSearchStringGenerator(item -> "fwc " + item.getName());
-        autosuggest23.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.key}')\" class=\"aaa\">${option.label} ${option.optId}</button>`;}");
+        autosuggest23.setOptionTemplate("<button class=\"aaa\" style=\"color:blue;\">${option.label} ${option.optId}</button>");
         col2.add(new Span("Objects + template provider + customSearch (fwc xxxxx)"), autosuggest23);
 
         VerticalLayout col3 = new VerticalLayout(); first.add(col3);
@@ -293,7 +292,7 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest24.setItems(generateItemsMap());
         autosuggest24.setOpenDropdownOnClick(true);
         autosuggest24.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        autosuggest24.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.key}')\" class=\"aaa\">${option.label}</button>`;}");
+        autosuggest24.setOptionTemplate("<button class=\"aaa\">${option.label}</button>");
         col3.add(new Span("Objects + template provider"), autosuggest24);
 
 
