@@ -8,3 +8,21 @@ autosuggest-demo/target/
 autosuggest/target/
 
 .idea/
+
+autosuggest/autosuggest (1).iml
+
+autosuggest/package.json
+
+autosuggest/webpack.config.js
+
+autosuggest/webpack.generated.js
+
+autosuggest-demo/package-lock.json
+
+autosuggest-demo/autosuggest-demo.iml
+
+autosuggest-demo/package.json
+
+autosuggest-demo/webpack.config.js
+
+autosuggest-demo/webpack.generated.js
