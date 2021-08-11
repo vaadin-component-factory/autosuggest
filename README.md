@@ -12,8 +12,11 @@ Lazy loading, default value, customization, component slots, template rendering 
 Some examples of this component usage:
 
 ```java
-        VerticalLayout col1 = new VerticalLayout(); add(col1);
-        
+        FlexLayout first = new FlexLayout(); add(first);
+        first.setJustifyContentMode(JustifyContentMode.EVENLY);
+
+        VerticalLayout col1 = new VerticalLayout(); first.add(col1);
+
         Autosuggest<String> autosuggest1 = new Autosuggest<>();
         col1.add(new Span("No customization"), autosuggest1);
 
@@ -39,7 +42,13 @@ Some examples of this component usage:
         autosuggest5.setPlaceholder("Label is up there");
         autosuggest5.setLabel("This is a label: *");
         autosuggest5.setItems(generateItems());
-        col1.add(new Span("Label (position 1) + placeholder"), autosuggest5);
+        autosuggest5.addCustomValueSubmitListener(enterKeyPressEvent -> {
+        if(enterKeyPressEvent.getNumberOfAvailableOptions() != 1) {
+        notification.setText(enterKeyPressEvent.getValue());
+        notification.open();
+        }
+        });
+        col1.add(new Span("Label (position 1) + placeholder + custom value event"), autosuggest5);
 
         Autosuggest<String> autosuggest6 = new Autosuggest<>();
         autosuggest6.setItems(generateItems());
@@ -55,10 +64,10 @@ Some examples of this component usage:
         autosuggest8.setItems(generateItems());
         autosuggest8.setOpenDropdownOnClick(true);
         autosuggest8.setReadOnly(true);
-        autosuggest8.setValue("avocado");
+        autosuggest8.setValue("Avocado");
         col1.add(new Span("With items + readonly"), autosuggest8);
 
-        VerticalLayout col2 = new VerticalLayout(); add(col2);
+        VerticalLayout col2 = new VerticalLayout(); first.add(col2);
 
         Autosuggest<String> autosuggest9 = new Autosuggest<>();
         autosuggest9.setItems(generateItems());
@@ -75,19 +84,19 @@ Some examples of this component usage:
         autosuggest10.setItems(generateItems());
 
         autosuggest10.addEagerInputChangeListener(event -> {
-            inputValue10.setText("Current input: " + autosuggest10.getInputValue());
+        inputValue10.setText("Current input: " + autosuggest10.getInputValue());
         });
 
         autosuggest10.addValueChangeListener(event -> {
-            selectionValue10.setText("Selection: " + event.getValue());
+        selectionValue10.setText("Selection: " + event.getValue());
         });
 
         autosuggest10.addValueClearListener(event -> {
-            selectionValue10.setText("Selection: " + "");
+        selectionValue10.setText("Selection: " + "");
         });
 
         autosuggest10.setPlaceholder("Search ...");
-        autosuggest10.setThemeName("my-auto-autosuggest");
+        autosuggest10.setThemeName("my-autosuggest");
 
         VerticalLayout vl10 = new VerticalLayout(inputValue10, selectionValue10, autosuggest10);
         vl10.setPadding(false); vl10.setSpacing(false); vl10.setMargin(false);
@@ -99,7 +108,9 @@ Some examples of this component usage:
         col2.add(new Span("Case sensitive"), autosuggest11);
 
         Autosuggest<String> autosuggest12 = new Autosuggest<>();
+        //autosuggest12.setItems(generateItems());
         autosuggest12.setLazy(true);
+//        autosuggest12.setLoading(true);
         autosuggest12.setOpenDropdownOnClick(true);
         autosuggest12.setComponentToDropdownEndSlot(new HorizontalLayout(new Button("Custom!")));
         col2.add(new Span("Loading + dropdownEndSlot"), autosuggest12);
@@ -111,22 +122,23 @@ Some examples of this component usage:
         Autosuggest<String> autosuggest13 = new Autosuggest<>();
         autosuggest13.setItems(generateItems());
         autosuggest13.setLazy(true);
-        autosuggest13.addInputChangeListener(event -> { inputValue13.setText("Current input (lazy) [kw=lazy,avocado]: " + autosuggest13.getInputValue()); });
         autosuggest13.addInputChangeListener(event -> {
-            autosuggest13.setItems(Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" }));
-            autosuggest13.setLoading(false);
+        inputValue13.setText("Current input (lazy) [kw=lazy,avocado]: " + autosuggest13.getInputValue());
+        });
+        autosuggest13.addLazyDataRequestListener(event -> {
+        autosuggest13.setItems(Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" }));
         });
 
         autosuggest13.addValueChangeListener(event -> {
-            selectionValue13.setText("Selection: " + event.getValue());
+        selectionValue13.setText("Selection: " + event.getValue());
         });
 
         autosuggest13.addValueClearListener(event -> {
-            selectionValue13.setText("Selection: " + "");
+        selectionValue13.setText("Selection: " + "");
         });
 
         autosuggest13.setPlaceholder("Search ...");
-        autosuggest13.setThemeName("my-auto-autosuggest");
+        autosuggest13.setThemeName("my-autosuggest");
 
         VerticalLayout vl13 = new VerticalLayout(inputValue13, selectionValue13, autosuggest13);
         vl13.setPadding(false); vl13.setSpacing(false); vl13.setMargin(false);
@@ -137,13 +149,15 @@ Some examples of this component usage:
         autosuggest14.setCustomizeItemsForWhenValueIsNull(true);
         autosuggest14.setOpenDropdownOnClick(true);
         autosuggest14.setItemsForWhenValueIsNull(Arrays.asList(new String[] {"different", "list", "this", "one"}));
-        col2.add(new Span("Initial autosuggestions (for when input is empty)"), autosuggest14);
+        col2.add(new Span("Initial suggestions (for when input is empty)"), autosuggest14);
 
         Autosuggest<String> autosuggest15 = new Autosuggest<>(5);
         autosuggest15.setItems(generateItems());
         autosuggest15.setOpenDropdownOnClick(true);
         autosuggest15.setComponentToDropdownEndSlot(new HorizontalLayout(new Button("Custom!")));
-        autosuggest15.setDefaultOptionValue("Default!");
+        //autosuggest15.setDefaultOption("key", "Default!", "Default! + uselessSearchStr");
+        autosuggest15.setDefaultOption("", "Default!", "Default! + uselessSearchStr");
+        autosuggest15.setSearchMatchingMode(Autosuggest.SearchMatchingMode.CONTAINS);
         col2.add(new Span("Dropdown end slot + default value"), autosuggest15);
 
         Autosuggest<Fruit> autosuggest23 = new Autosuggest<>();
@@ -151,10 +165,10 @@ Some examples of this component usage:
         autosuggest23.setOpenDropdownOnClick(true);
         autosuggest23.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
         autosuggest23.setSearchStringGenerator(item -> "fwc " + item.getName());
-        autosuggest23.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-auto-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.label}')\" class=\"aaa\">${option.label} ${option.optId}</button>`;}");
+        autosuggest23.setOptionTemplate("<button class=\"aaa\" style=\"color:blue;\">${option.label} ${option.optId}</button>");
         col2.add(new Span("Objects + template provider + customSearch (fwc xxxxx)"), autosuggest23);
 
-        VerticalLayout col3 = new VerticalLayout(); add(col3);
+        VerticalLayout col3 = new VerticalLayout(); first.add(col3);
 
         Autosuggest<String> autosuggest16 = new Autosuggest<>();
         List<String> items16 = generateItems().stream().collect(Collectors.toList());
@@ -169,75 +183,163 @@ Some examples of this component usage:
         autosuggest17.getTextField().setWidth("400px");
         col3.add(new Span("Custom text field width"), autosuggest17);
 
-        Span inputValue18 = new Span("Current input (lazy) [kw=lazy,avocado], lambda: ");
+        Span inputValue18 = new Span("Current input (lazy) [kw=lazy,avocado], lambda + minimumLengthForLazyReq=3: ");
         Span selectionValue18 = new Span("Selection: ");
         inputValue18.getElement().getStyle().set("font-size", "12px");
         selectionValue18.getElement().getStyle().set("font-size", "12px");
         Autosuggest<String> autosuggest18 = new Autosuggest<>();
-        autosuggest18.setItems(generateItems());
+        //autosuggest18.setItems(generateItems());
+        autosuggest18.setMinimumInputLengthToPerformLazyQuery(3);
         autosuggest18.setLazy(true);
         autosuggest18.setLazyProviderSimple(inputValue -> {
         try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }
-            return Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" });
+        return Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" });
         });
         autosuggest18.addInputChangeListener(event -> {
-            inputValue18.setText("Current input (lazy) [kw=lazy,avocado], lambda: " + autosuggest18.getInputValue());
+        inputValue18.setText("Current input (lazy) [kw=lazy,avocado], lambda: " + autosuggest18.getInputValue());
         });
 
         autosuggest18.addValueChangeListener(event -> {
-            selectionValue18.setText("Selection: " + event.getValue());
+        selectionValue18.setText("Selection: " + event.getValue());
         });
 
         autosuggest18.addValueClearListener(event -> {
-            selectionValue18.setText("Selection: " + "");
+        selectionValue18.setText("Selection: " + "");
         });
 
         autosuggest18.setPlaceholder("Search ...");
         autosuggest18.setThemeName("my-autosuggest");
 
-        VerticalLayout vl18 = new VerticalLayout(inputValue18, selectionValue18, suggest18);
+        VerticalLayout vl18 = new VerticalLayout(inputValue18, selectionValue18, autosuggest18);
         vl18.setPadding(false); vl18.setSpacing(false); vl18.setMargin(false);
         col3.add(new Span("Lazy, lambda"), vl18);
 
-        Autosuggest<Fruit> suggest19 = new Autosuggest<>();
-        suggest19.setItems(generateItemsMap());
-        suggest19.setOpenDropdownOnClick(true);
-        col3.add(new Span("Objects"), suggest19);
+        Autosuggest<Fruit> autosuggest19 = new Autosuggest<>();
+        autosuggest19.setItems(generateItemsMap());
+        autosuggest19.setOpenDropdownOnClick(true);
+        col3.add(new Span("Objects"), autosuggest19);
 
-        Autosuggest<Fruit> suggest20 = new Autosuggest<>();
-        suggest20.setItems(generateItemsMap());
-        suggest20.setOpenDropdownOnClick(true);
-        suggest20.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        col3.add(new Span("Objects + label generator"), suggest20);
+        Autosuggest<Fruit> autosuggest20 = new Autosuggest<>();
+        autosuggest20.setItems(generateItemsMap());
+        autosuggest20.setOpenDropdownOnClick(true);
+        autosuggest20.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        col3.add(new Span("Objects + label generator"), autosuggest20);
 
-        Autosuggest<Fruit> suggest21 = new Autosuggest<>();
-        suggest21.setItems(generateItemsMap());
-        suggest21.setOpenDropdownOnClick(true);
-        suggest21.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        suggest21.setSearchStringGenerator(item -> "fwc " + item.getName());
-        col3.add(new Span("Objects + label generator + customSearch (fwc xxxxx)"), suggest21);
+        Autosuggest<Fruit> autosuggest21 = new Autosuggest<>();
+        autosuggest21.setItems(generateItemsMap());
+        autosuggest21.setOpenDropdownOnClick(true);
+        autosuggest21.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        autosuggest21.setSearchStringGenerator(item -> "fwc " + item.getName());
+        col3.add(new Span("Objects + label generator + customSearch (fwc xxxxx)"), autosuggest21);
 
-        Autosuggest<Fruit> suggest22 = new Autosuggest<>();
-        suggest22.setItems(generateItemsMap());
-        suggest22.setOpenDropdownOnClick(true);
-        suggest22.setItemsForWhenValueIsNull(generateItems1());
-        suggest22.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        suggest22.setItems(generateItems1());
-        suggest22.setLazy(true);
-        suggest22.setLazyProviderSimple(inputValue -> {
-            if(inputValue.trim().length()==0) return Arrays.asList(new Fruit[]{});
-            try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }
-            return Arrays.asList(new Fruit[]{ new Fruit("lazy avocado 1"), new Fruit("lazy avocado 2"), new Fruit("avocado lazy 3" )});
+        Autosuggest<Fruit> autosuggest22 = new Autosuggest<>();
+        autosuggest22.setItems(generateItemsMap());
+        autosuggest22.setOpenDropdownOnClick(true);
+        autosuggest22.setItemsForWhenValueIsNull(generateItems1());
+        autosuggest22.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        autosuggest22.setItems(generateItems1());
+        autosuggest22.setLazy(true);
+        autosuggest22.setLazyProviderSimple(inputValue -> {
+        if(inputValue.trim().length()==0) return Arrays.asList(new Fruit[]{});
+        try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }
+        return Arrays.asList(new Fruit[]{ new Fruit("lazy avocado 1"), new Fruit("lazy avocado 2"), new Fruit("avocado lazy 3" )});
         });
 
-        col3.add(new Span("Objects + lazy + different values for input=null"), suggest22);
+        col3.add(new Span("Objects + lazy + different values for input=null"), autosuggest22);
 
-        Autosuggest<Fruit> suggest24 = new Autosuggest<>();
-        suggest24.setItems(generateItemsMap());
-        suggest24.setOpenDropdownOnClick(true);
-        suggest24.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
-        suggest24.setTemplateProvider("function(option, that) { window.handler1 = function(x){console.log(x); that._applyValue(x);}; return `<style>vcf-autosuggest-overlay vaadin-item {color: blue;}</style><button onclick=\"window.handler1('${option.label}')\" class=\"aaa\">${option.label}</button>`;}");
-        col3.add(new Span("Objects + template provider"), suggest24);
+        Autosuggest<Fruit> autosuggest24 = new Autosuggest<>();
+        autosuggest24.setItems(generateItemsMap());
+        autosuggest24.setOpenDropdownOnClick(true);
+        autosuggest24.setLabelGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        autosuggest24.setOptionTemplate("<button class=\"aaa\">${option.label}</button>");
+        col3.add(new Span("Objects + template provider"), autosuggest24);
+
+
+        VerticalLayout second = new VerticalLayout(); add(second);
+        second.setWidthFull();
+
+        second.add(new Span("TEST EXAMPLE 1 [daniel, john, craig, linda]"));
+
+        Text iTxt = new Text("");
+        Text cpTxt = new Text("");
+
+        class Person implements Serializable {
+        String name;
+        double height;
+        String address;
+
+        @Override
+        public String toString() {
+        return this.name;
+        }
+
+        Person(String n, double h, String a) {
+        this.name = n;
+        this.height = h;
+        this.address = a;
+        }
+        }
+
+        Autosuggest<Person> field = new Autosuggest<>();
+
+        field.setItems(Arrays.asList(new Person[]{
+        new Person("daniel", 1.67, "St. John Str"),
+        new Person("john", 1.81, "Peace Av."),
+        new Person("craig", 1.77, "Uphill Rd."),
+        new Person("linda", 1.74, "Central Av."),
+        }));
+
+        second.add(new HorizontalLayout(new Label("Input val (triggered by event, retrieved from component): "), iTxt));
+        second.add(new HorizontalLayout(new Label("Selection value (triggered by event, retrieved from component): "), cpTxt));
+        second.add(field);
+
+        field.addEagerInputChangeListener(e -> {
+        int x = 35;
+        });
+
+        field.addInputChangeListener(e -> {
+        iTxt.setText(field.getInputValue());
+        });
+
+        field.addValueChangeListener(e -> {
+        Person x = field.getValue();
+        cpTxt.setText(x == null ? "" : x.address);
+        });
+
+        class PersonH extends Person implements Serializable {
+        @Override
+        public String toString() {
+        return String.format("%d", this.hashCode());
+        }
+
+        PersonH(String n, double h, String a) {
+        super(n, h, a);
+        }
+
+        public String getName() {
+        return this.name;
+        }
+        }
+
+        second.add(new Span("TEST EXAMPLE 2 [john, john, john, john]"));
+        Text cpTxt2 = new Text("");
+        Autosuggest<PersonH> field2 = new Autosuggest<>();
+        field2.setItems(Arrays.asList(new PersonH[]{
+        new PersonH("john", 1.67, "St. John Str"),
+        new PersonH("john", 1.81, "Peace Av."),
+        new PersonH("john", 1.77, "Uphill Rd."),
+        new PersonH("john", 1.74, "Central Av."),
+        }));
+        field2.addValueChangeListener(e -> {
+        Person x = field2.getValue();
+        cpTxt2.setText(x == null ? "" : x.address);
+        });
+        field2.setLabelGenerator(PersonH::getName);
+        field2.setSearchStringGenerator(item -> item.getName().toLowerCase(Locale.ROOT));
+        field2.setOpenDropdownOnClick(true);
+
+        second.add(new HorizontalLayout(new Label("Selection value (triggered by event, retrieved from component): "), cpTxt2));
+        second.add(field2);
 
 ```
 
