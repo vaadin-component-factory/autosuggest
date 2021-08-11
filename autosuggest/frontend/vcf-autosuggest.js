@@ -613,7 +613,7 @@ import './vcf-autosuggest-overlay';
                 let oid = listbox.children[i].dataOid;
                 let option = this._optionsToDisplay.filter(o => o.optId==oid)[0]
                 var ttt = this;
-                if(option) listbox.children[i].innerHTML = this.customItemTemplate(option, this)
+                if(option) listbox.children[i].innerHTML = eval(`ttt.__customItemTemplateGenerator = ${this.customItemTemplate}(option, this)`)
             }
         }
         let that = this;
