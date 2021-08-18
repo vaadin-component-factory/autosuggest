@@ -59,8 +59,6 @@
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-app-layout-flow:14.6.1" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-context-menu-flow:14.6.1" level="project" />
     <orderEntry type="library" name="Maven: com.vaadin:vaadin-menu-bar-flow:14.6.1" level="project" />
-    <orderEntry type="library" name="Maven: org.vaadin.artur:a-vaadin-helper:1.6.0" level="project" />
-    <orderEntry type="library" name="Maven: org.vaadin.artur:spring-data-provider:2.1.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench:14.6.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.vaadin:vaadin-testbench-core:6.4.0" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.11" level="project" />
