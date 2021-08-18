@@ -254,8 +254,9 @@ import './vcf-autosuggest-overlay';
     }
 
     _outsideClickHandler() {
+		this.loading = false;
         if(!this.opened) return;
-        this._applyValue(this.selectedValue == null ? (this._hasDefaultOption() ? this._defaultOption.key : '') : this.selectedValue);
+        this._applyValue(this.selectedValue);
         this.opened = false;
     }
 
@@ -332,6 +333,7 @@ import './vcf-autosuggest-overlay';
         }
 
         for(let i=0; i<_res.length; i++) { _res[i].optId = i; }
+		this._loadingChanged(false);
         this._optionsToDisplay = _res;
         this._refreshMessageItemsState();
     }
@@ -398,7 +400,7 @@ import './vcf-autosuggest-overlay';
             case 'Tab':
             case 'Esc':
             case 'Escape':
-                this._applyValue(this.selectedValue == null ? (this._hasDefaultOption() ? this._defaultOption.key : '') : this.selectedValue);
+                this._applyValue(this.selectedValue);
                 this.$.textField.blur();
                 this.opened = false;
                 break;
@@ -553,7 +555,7 @@ import './vcf-autosuggest-overlay';
     }
 
     clear(keepDropdownOpened=false) {
-        if(!keepDropdownOpened) this._applyValue(this._hasDefaultOption() ? this._defaultOption.key : '', true);
+        if(!keepDropdownOpened) this._applyValue(null, true);
         this._textFieldFocus();
         if(!keepDropdownOpened) {
             this.opened = false;

@@ -202,6 +202,8 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     /**
      * Default constructor.
+     *
+     * @param placeClearButtonFirst Should the clear button be placed before the suffix
      */
     public Autosuggest(boolean placeClearButtonFirst) {
         setMinimumInputLengthToPerformLazyQuery(0);
@@ -467,7 +469,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     private void applyValue(String value) {
         Element element = getElement();
         element.getNode().runWhenAttached(ui -> ui.beforeClientResponse(this,
-                context -> element.executeJs("setTimeout(function() { $0._applyValue(\"" + value + "\"); }, 0);", element))
+            context -> element.executeJs("setTimeout(function() { $0._applyValue(\"" + value + "\"); }, 0);", element))
         );
     }
 
@@ -586,58 +588,56 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
 
     public void setKeyGenerator(KeyGenerator<T> keyG) {
         this.keyGenerator = keyG;
-        this.setItems();
+        setItems();
     }
 
     public void unsetKeyGenerator() {
         this.keyGenerator = null;
-        this.setItems();
+        setItems();
     }
 
     public void setLabelGenerator(LabelGenerator<T> lblG) {
         this.labelGenerator = lblG;
-        this.setItems();
+        setItems();
     }
 
     public void unsetLabelGenerator() {
         this.labelGenerator = null;
-        this.setItems();
+        setItems();
     }
 
     public void clearSearchStringGenerator() {
         this.searchStringGenerator = null;
         getModel().setDisableSearchHighlighting(false);
-        this.setItems();
+        setItems();
     }
 
     public void setSearchStringGenerator(SearchStringGenerator<T> searchStringGenerator) {
         this.searchStringGenerator = searchStringGenerator;
         getModel().setDisableSearchHighlighting(true);
-        this.setItems();
+        setItems();
     }
 
     public void clearItemsForWhenValueIsNull() {
         getModel().setCustomizeOptionsForWhenValueIsNull(false);
         this.itemsForWhenValueIsNull = new HashMap<>();
-        getModel().setOptionsForWhenValueIsNull(new ArrayList<>());
+        getModel().setOptionsForWhenValueIsNull(List.of());
     }
 
     public void setItemsForWhenValueIsNull(Collection<T> items) {
         this.itemsForWhenValueIsNull.clear();
         this.itemsForWhenValueIsNull.putAll(items.stream().collect(Collectors.toMap(this::getKey, this::getOption)));
-
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
-        getModel().setOptionsForWhenValueIsNull(new ArrayList<>(this.itemsForWhenValueIsNull.values()));
+        getModel().setOptionsForWhenValueIsNull(List.copyOf(this.itemsForWhenValueIsNull.values()));
     }
 
     public void setItemsForWhenValueIsNull(Map<String, T> items) {
         this.itemsForWhenValueIsNull.clear();
         this.items.putAll(
-                items.keySet().stream().collect(Collectors.toMap(key -> key, key -> getOption(items.get(key))))
+            items.keySet().stream().collect(Collectors.toMap(key -> key, key -> getOption(items.get(key))))
         );
-
         getModel().setCustomizeOptionsForWhenValueIsNull(true);
-        getModel().setOptionsForWhenValueIsNull(new ArrayList<>(this.itemsForWhenValueIsNull.values()));
+        getModel().setOptionsForWhenValueIsNull(List.copyOf(this.itemsForWhenValueIsNull.values()));
     }
 
     public void clearOptionTemplate() {
@@ -653,13 +653,14 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     private void setItems() {
-        this.setItems(this.items.values().stream().map(Option::getItem).collect(Collectors.toList()));
+        if (!items.isEmpty())
+            setItems(items.values().stream().map(Option::getItem).collect(Collectors.toList()));
     }
 
     public void setItems(Collection<T> items) {
         clearItems();
         this.items.putAll(items.stream().collect(Collectors.toMap(this::getKey, this::getOption)));
-        getModel().setOptions(new ArrayList<>(this.items.values()));
+        getModel().setOptions(List.copyOf(this.items.values()));
         getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
         setLoading(false);
     }
@@ -667,9 +668,10 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     public void setItems(Map<String, T> items) {
         clearItems();
         this.items.putAll(
-                items.keySet().stream().collect(Collectors.toMap(key -> key, key -> getOption(items.get(key))))
+            items.keySet().stream().collect(Collectors.toMap(key -> key, key -> getOption(items.get(key))))
         );
-        getModel().setOptions(new ArrayList<>(this.items.values()));        getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
+        getModel().setOptions(List.copyOf(this.items.values()));
+        getElement().executeJs("this._refreshOptionsToDisplay(this.options, this.inputValue)");
         setLoading(false);
     }
 
@@ -686,7 +688,7 @@ public class Autosuggest<T> extends PolymerTemplate<Autosuggest.AutosuggestTempl
     }
 
     /**
-     * ValueClearEvent is created when the user clicks on the clean button.
+     * ValueClearEvent is created when the user clicks on the clear button.
      */
     @DomEvent("clear")
     public static class ValueClearEvent extends ComponentEvent<Autosuggest> {
