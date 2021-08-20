@@ -333,6 +333,7 @@ import './vcf-autosuggest-overlay';
 
         for(let i=0; i<_res.length; i++) { _res[i].optId = i; }
         this._optionsToDisplay = _res;
+        this._loadingChanged(false);
         this._refreshMessageItemsState();
     }
 
