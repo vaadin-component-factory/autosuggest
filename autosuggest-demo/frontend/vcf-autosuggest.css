@@ -1,0 +1,47 @@
+vcf-autosuggest-overlay [part='options-container'] {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    min-width: var(--vcf-autosuggest-options-width);
+}
+
+vcf-autosuggest-overlay [part="options-container"] vaadin-item::before {
+    content: none;
+}
+
+vcf-autosuggest-overlay [part="dropdown-end-slot"] {
+    border-top: 1px solid var(--lumo-contrast-40pct);
+}
+
+vcf-autosuggest-overlay [part='loading-indicator'] {
+	background: repeating-linear-gradient(to right, var(--lumo-primary-color), var(--lumo-primary-color-50pct) 25%, var(--lumo-primary-color-10pct) 50%, var(--lumo-primary-color-50pct) 75%, var(--lumo-primary-color) 100%);
+	width: 100%;
+	background-size: 200% auto;
+	background-position: 0 100%;
+	animation: loading-animation 1s infinite;
+	animation-fill-mode: both;
+	animation-timing-function: linear;
+	height: 4px;
+	border-radius: var(--lumo-border-radius-s);
+}
+
+@keyframes loading-animation {
+	0%   { background-position: 0 0; }
+	100% { background-position: -200% 0; }
+}
+
+vcf-autosuggest-overlay [part='option'] {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+vcf-autosuggest-overlay [part='bold'] {
+	font-weight: 600;
+}
+
+vcf-autosuggest-overlay [part='no-results']::after {
+	content: var(--x-no-results-msg);
+}
+
+vcf-autosuggest-overlay [part='input-length-below-minimum']::after {
+	content: var(--x-input-length-below-minimum-msg);
+}

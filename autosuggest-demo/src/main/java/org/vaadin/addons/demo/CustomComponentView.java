@@ -18,7 +18,6 @@ import org.vaadin.addons.componentfactory.Autosuggest;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Route(value = "")
 @Theme(value = Lumo.class)
@@ -26,12 +25,12 @@ public class CustomComponentView extends VerticalLayout {
     @Data
     @AllArgsConstructor
     @ToString
-    class Fruit {
+    static class Fruit {
         String name;
     }
 
     public List<String> generateItems() {
-        return Arrays.asList(new String[] {"Avocado", "Banana", "Tomato", "Cherry", "Orange", "Passionfruit", "Startfruit", "Strawberry", "Apple", "Pineapple", "Pear"});
+        return Arrays.asList("Avocado", "Banana", "Tomato", "Cherry", "Orange", "Passionfruit", "Startfruit", "Strawberry", "Apple", "Pineapple", "Pear");
     }
 
     public List<Fruit> generateItems1() {
@@ -43,7 +42,7 @@ public class CustomComponentView extends VerticalLayout {
 
     public Map<String, Fruit> generateItemsMap() {
         Map<String, Fruit> res = new HashMap<>();
-        Arrays.asList(new String[] {"Avocado", "Banana", "Tomato", "Cherry", "Orange", "Passionfruit", "Startfruit", "Strawberry", "Apple", "Pineapple", "Pear"}).stream()
+        Arrays.asList(new String[] {"Avocado", "Banana", "Tomato", "Cherry", "Orange", "Passionfruit", "Startfruit", "Strawberry", "Apple", "Pineapple", "Pear"})
                 .forEach(item -> res.put(item + " F", new Fruit(item)));
         return res;
     }
@@ -167,7 +166,7 @@ public class CustomComponentView extends VerticalLayout {
             inputValue13.setText("Current input (lazy) [kw=lazy,avocado]: " + autosuggest13.getInputValue());
         });
         autosuggest13.addLazyDataRequestListener(event -> {
-            autosuggest13.setItems(Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" }));
+            autosuggest13.setItems(Arrays.asList("lazy avocado 1", "lazy avocado 2", "avocado lazy 3"));
         });
 
         autosuggest13.addValueChangeListener(event -> {
@@ -187,9 +186,8 @@ public class CustomComponentView extends VerticalLayout {
 
         Autosuggest<String> autosuggest14 = new Autosuggest<>();
         autosuggest14.setItems(generateItems());
-        autosuggest14.setCustomizeItemsForWhenValueIsNull(true);
         autosuggest14.setOpenDropdownOnClick(true);
-        autosuggest14.setItemsForWhenValueIsNull(Arrays.asList(new String[] {"different", "list", "this", "one"}));
+        autosuggest14.setItemsForWhenValueIsNull(Arrays.asList("different", "list", "this", "one"));
         col2.add(new Span("Initial suggestions (for when input is empty)"), autosuggest14);
 
         Autosuggest<String> autosuggest15 = new Autosuggest<>(5);
@@ -212,7 +210,7 @@ public class CustomComponentView extends VerticalLayout {
         VerticalLayout col3 = new VerticalLayout(); first.add(col3);
 
         Autosuggest<String> autosuggest16 = new Autosuggest<>();
-        List<String> items16 = generateItems().stream().collect(Collectors.toList());
+        List<String> items16 = new ArrayList<>(generateItems());
         items16.add("This is a very long item and the dropdown should grow to show it");
         autosuggest16.setItems(items16);
         autosuggest16.setOpenDropdownOnClick(true);
@@ -234,7 +232,7 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest18.setLazy(true);
         autosuggest18.setLazyProviderSimple(inputValue -> {
             try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }
-            return Arrays.asList(new String[]{ "lazy avocado 1", "lazy avocado 2", "avocado lazy 3" });
+            return Arrays.asList("lazy avocado 1", "lazy avocado 2", "avocado lazy 3");
         });
         autosuggest18.addInputChangeListener(event -> {
             inputValue18.setText("Current input (lazy) [kw=lazy,avocado], lambda: " + autosuggest18.getInputValue());
@@ -281,9 +279,11 @@ public class CustomComponentView extends VerticalLayout {
         autosuggest22.setItems(generateItems1());
         autosuggest22.setLazy(true);
         autosuggest22.setLazyProviderSimple(inputValue -> {
-            if(inputValue.trim().length()==0) return Arrays.asList(new Fruit[]{});
+            if(inputValue.trim().isEmpty()) return Collections.emptyList();
             try { Thread.sleep(4000); } catch (InterruptedException e) { e.printStackTrace(); }
-            return Arrays.asList(new Fruit[]{ new Fruit("lazy avocado 1"), new Fruit("lazy avocado 2"), new Fruit("avocado lazy 3" )});
+            return Arrays.asList(new Fruit("lazy avocado 1"),
+                new Fruit("lazy avocado 2"),
+                new Fruit("avocado lazy 3"));
         });
 
         col3.add(new Span("Objects + lazy + different values for input=null"), autosuggest22);
@@ -323,12 +323,10 @@ public class CustomComponentView extends VerticalLayout {
 
         Autosuggest<Person> field = new Autosuggest<>();
 
-        field.setItems(Arrays.asList(new Person[]{
-                new Person("daniel", 1.67, "St. John Str"),
-                new Person("john", 1.81, "Peace Av."),
-                new Person("craig", 1.77, "Uphill Rd."),
-                new Person("linda", 1.74, "Central Av."),
-        }));
+        field.setItems(Arrays.asList(new Person("daniel", 1.67, "St. John Str"),
+            new Person("john", 1.81, "Peace Av."),
+            new Person("craig", 1.77, "Uphill Rd."),
+            new Person("linda", 1.74, "Central Av.")));
 
         second.add(new HorizontalLayout(new Label("Input val (triggered by event, retrieved from component): "), iTxt));
         second.add(new HorizontalLayout(new Label("Selection value (triggered by event, retrieved from component): "), cpTxt));
@@ -365,12 +363,10 @@ public class CustomComponentView extends VerticalLayout {
         second.add(new Span("TEST EXAMPLE 2 [john, john, john, john]"));
         Text cpTxt2 = new Text("");
         Autosuggest<PersonH> field2 = new Autosuggest<>();
-        field2.setItems(Arrays.asList(new PersonH[]{
-                new PersonH("john", 1.67, "St. John Str"),
-                new PersonH("john", 1.81, "Peace Av."),
-                new PersonH("john", 1.77, "Uphill Rd."),
-                new PersonH("john", 1.74, "Central Av."),
-        }));
+        field2.setItems(Arrays.asList(new PersonH("john", 1.67, "St. John Str"),
+            new PersonH("john", 1.81, "Peace Av."),
+            new PersonH("john", 1.77, "Uphill Rd."),
+            new PersonH("john", 1.74, "Central Av.")));
         field2.addValueChangeListener(e -> {
             Person x = field2.getValue();
             cpTxt2.setText(x == null ? "" : x.address);
