@@ -20,6 +20,8 @@ package org.vaadin.addons.componentfactory;
  * #L%
  */
 
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.ClientCallable;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
@@ -112,13 +114,13 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
         public String getSearchStr() { return this.fOption.getSearchStr(); }
     }
 
-    public interface LazyProviderFunction<T> {}
+    public interface LazyProviderFunction {}
 
-    public interface LazyProviderFunctionSimple<T> extends LazyProviderFunction<T> {
+    public interface LazyProviderFunctionSimple<T> extends LazyProviderFunction {
         List<T> refresh(String searchQ);
     }
 
-    public interface LazyProviderFunctionMap<T> extends LazyProviderFunction<T> {
+    public interface LazyProviderFunctionMap<T> extends LazyProviderFunction {
         Map<String, T> refresh(String searchQ);
     }
 
@@ -144,10 +146,12 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
     public Map<String, Option> getItemsForWhenValueIsNull() { return this.itemsForWhenValueIsNull; }
 
     @Id("textField")
+    @SuppressWarnings("unused")
     private TextField textField;
     public TextField getTextField() { return this.textField; }
 
     @Id("dropdownEndSlot")
+    @SuppressWarnings("unused")
     private Element dropdownEndSlot;
 
     private KeyGenerator<T> keyGenerator = null;
@@ -282,11 +286,7 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
         getElement().setProperty("caseSensitive", caseSensitive);
     }
 
-    /**
-     * Update the valuechangemode and set the corresponding listeners
-     *
-     * @param lazy
-     */
+    /** Update the valuechangemode and set the corresponding listeners. */
     public void setLazy(boolean lazy) {
         textField.setValueChangeMode(lazy ? ValueChangeMode.LAZY : ValueChangeMode.ON_CHANGE);
         getElement().setProperty("lazy", lazy);
@@ -294,17 +294,15 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
         if (selectionEvent != null) selectionEvent.remove();
         if (lazy) {
             inputTextChangeEvent = addInputChangeListener(valueChangeEvent -> {
+                String eventValue = valueChangeEvent.getValue();
                 if (!valueChangeEvent.isFromClient()) {
-                    if (valueChangeEvent.getValue() == null || valueChangeEvent.getValue().toString().isEmpty())
+                    if (eventValue == null || eventValue.isEmpty())
                         getElement().executeJs("this.clear();");
                     setLoading(false);
-                } else if ((valueChangeEvent.getValue() == null) ||
-                    (valueChangeEvent.getValue().toString().isEmpty()) ||
-                    (getItemForLabel(valueChangeEvent.getValue().toString()).isPresent()))
-                {
+                } else if ((eventValue == null) || (eventValue.isEmpty()) || (getItemForLabel(eventValue).isPresent())) {
                     setLoading(false);
-                } else if (valueChangeEvent.getValue().toString().trim().length() >= getMinimumInputLengthToPerformLazyQuery())
-                    getEventBus().fireEvent(new AutosuggestLazyDataRequestEvent(this, true, valueChangeEvent.getValue().toString()));
+                } else if (eventValue.trim().length() >= getMinimumInputLengthToPerformLazyQuery())
+                    getEventBus().fireEvent(new AutosuggestLazyDataRequestEvent(this, true, eventValue));
             });
             selectionEvent = addValueAppliedListener(autosuggestValueAppliedEvent -> textField.setValue(autosuggestValueAppliedEvent.getLabel()));
         }
@@ -470,7 +468,7 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
         return addListener(CustomValueSubmitEvent.class, listener);
     }
 
-    public Registration addInputChangeListener(HasValue.ValueChangeListener listener) {
+    public Registration addInputChangeListener(HasValue.ValueChangeListener<? super ComponentValueChangeEvent<TextField, String>> listener) {
         return textField.addValueChangeListener(listener);
     }
 
@@ -504,8 +502,7 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
      * @param listener the listener
      * @return a {@link Registration} for removing the event listener
      */
-    public Registration addValueClearListener(
-        ComponentEventListener<ValueClearEvent> listener) {
+    public Registration addValueClearListener(ComponentEventListener<ValueClearEvent> listener) {
         return addListener(ValueClearEvent.class, listener);
     }
 
@@ -626,8 +623,8 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
 
     /** ValueClearEvent is created when the user clicks on the clear button. */
     @DomEvent("clear")
-    public static class ValueClearEvent extends ComponentEvent<Autosuggest> {
-        public ValueClearEvent(Autosuggest source, boolean fromClient) {
+    public static class ValueClearEvent extends ComponentEvent<Autosuggest<?>> {
+        public ValueClearEvent(Autosuggest<?> source, boolean fromClient) {
             super(source, fromClient);
         }
     }
@@ -696,11 +693,11 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
 
     /** EagerInputChangeEvent is created when the value of the TextField changes. */
     @DomEvent("vcf-autosuggest-input-value-changed")
-    public static class EagerInputChangeEvent extends ComponentEvent<Autosuggest> {
+    public static class EagerInputChangeEvent extends ComponentEvent<Autosuggest<?>> {
 
         private final String value;
 
-        public EagerInputChangeEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
+        public EagerInputChangeEvent(Autosuggest<?> source, boolean fromClient, @EventData("event.detail.value") String value) {
             super(source, fromClient);
             this.value = value;
         }
@@ -713,12 +710,12 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
      * returning the current value of the TextField
      */
     @DomEvent("vcf-autosuggest-custom-value-submit")
-    public static class CustomValueSubmitEvent extends ComponentEvent<Autosuggest> {
+    public static class CustomValueSubmitEvent extends ComponentEvent<Autosuggest<?>> {
 
         private final String value;
         private final Integer numberOfAvailableOptions;
 
-        public CustomValueSubmitEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value, @EventData("event.detail.numberOfAvailableOptions") Integer numberOfAvailableOptions) {
+        public CustomValueSubmitEvent(Autosuggest<?> source, boolean fromClient, @EventData("event.detail.value") String value, @EventData("event.detail.numberOfAvailableOptions") Integer numberOfAvailableOptions) {
             super(source, fromClient);
             this.value = value;
             this.numberOfAvailableOptions = numberOfAvailableOptions;
@@ -730,12 +727,12 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
 
     /** AutosuggestValueAppliedEvent is created when the user clicks on a option of the Autosuggest. */
     @DomEvent("vcf-autosuggest-value-applied")
-    public static class AutosuggestValueAppliedEvent extends ComponentEvent<Autosuggest> {
+    public static class AutosuggestValueAppliedEvent extends ComponentEvent<Autosuggest<?>> {
 
         private final String label;
         private final String value;
 
-        public AutosuggestValueAppliedEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value, @EventData("event.detail.label") String label) {
+        public AutosuggestValueAppliedEvent(Autosuggest<?> source, boolean fromClient, @EventData("event.detail.value") String value, @EventData("event.detail.label") String label) {
             super(source, fromClient);
             this.value = value;
             this.source = source;
@@ -747,11 +744,11 @@ public class Autosuggest<T> extends LitTemplate implements HasTheme, HasSize, Fo
     }
 
     //@DomEvent("vcf-autosuggest-lazy-data-request")
-    public static class AutosuggestLazyDataRequestEvent extends ComponentEvent<Autosuggest> {
+    public static class AutosuggestLazyDataRequestEvent extends ComponentEvent<Autosuggest<?>> {
 
         private final String value;
 
-        public AutosuggestLazyDataRequestEvent(Autosuggest source, boolean fromClient, @EventData("event.detail.value") String value) {
+        public AutosuggestLazyDataRequestEvent(Autosuggest<?> source, boolean fromClient, @EventData("event.detail.value") String value) {
             super(source, fromClient);
             this.value = value;
             this.source = source;
