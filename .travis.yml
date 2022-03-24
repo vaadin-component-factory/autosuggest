@@ -1,5 +1,5 @@
 language: java
-jdk: oraclejdk8
+jdk: oraclejdk11
 dist: trusty
 
 script: mvn -B verify -P bower -DskipFrontend -Dcom.vaadin.testbench.Parameters.testsInParallel=2 -Dvaadin.proKey=$VAADIN_PRO_KEY -Dsauce.user=$SAUCE_USER -Dsauce.sauceAccessKey=$SAUCE_ACCESSKEY

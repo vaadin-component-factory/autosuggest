@@ -22,7 +22,7 @@
      }
 
      [part='content'] {
-        padding: 0;
+         padding: 0;
      }
 
      [part='overlay'] {
